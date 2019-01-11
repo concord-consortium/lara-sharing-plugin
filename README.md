@@ -1,10 +1,6 @@
-# LARA Starter Plugin
+# LARA Sharing Plugin
 
-An empty plugin to use as a starting point when developing LARA plugins.
-Although a LARA Plugin API Interface has been provided in `./src/lara/interfaces.ts`
-it would be smart to check the
-[current LARA API](https://github.com/concord-consortium/lara/blob/master/app/assets/javascripts/lara-api.js) in the
-[LARA repo](https://github.com/concord-consortium/lara)
+A LARA plugin that allows students to share work with each other.
 
 ## Development
 
@@ -32,11 +28,11 @@ You *do not* need to build to deploy the code, that is automatic.  See more info
 Production releases to S3 are based on the contents of the /dist folder and are built automatically by Travis
 for each branch pushed to GitHub and each merge into production.
 
-Merges into production are deployed to http://lara-starter-plugin.concord.org.
+Merges into production are deployed to http://lara-sharing-plugin.concord.org.
 
-Other branches are deployed to http://lara-starter-plugin.concord.org/branch/<name>.
+Other branches are deployed to http://lara-sharing-plugin.concord.org/branch/<name>.
 
-You can view the status of all the branch deploys [here](https://travis-ci.org/concord-consortium/lara-starter-plugin/branches).
+You can view the status of all the branch deploys [here](https://travis-ci.org/concord-consortium/lara-sharing-plugin/branches).
 
 To deploy a production release:
 
