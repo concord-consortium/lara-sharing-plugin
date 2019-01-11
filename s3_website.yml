@@ -5,7 +5,7 @@ s3_key_prefix: lara-sharing-plugin
 s3_endpoint: us-east-1
 gzip: true
 
-cloudfront_distribution_id: xxxxx
+cloudfront_distribution_id: E1V2FSLU6NP13O
 cloudfront_invalidate_root: true
 cloudfront_wildcard_invalidation: true
 
