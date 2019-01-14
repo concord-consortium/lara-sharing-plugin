@@ -1,7 +1,7 @@
 {
-  "name": "teacher-edition-tips-plugin",
+  "name": "lara-sharing-plugin",
   "version": "0.0.1",
-  "description": "Concord Consortium Teacher Edition Tips Plugin",
+  "description": "Concord Consortium LARA Sharing Plugin",
   "main": "index.js",
   "jest": {
     "transform": {

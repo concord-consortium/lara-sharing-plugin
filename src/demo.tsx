@@ -2,15 +2,15 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { IAuthoredState} from "./types";
-import PluginComponent from "./components/plugin-component";
+import InteractiveAndWRapper from "./components/interactive-and-wrapper";
 
 const authoredState: IAuthoredState = {
-  helloText: "Hello World"
+  textContent: "Wrapper Text here."
 };
 
 ReactDOM.render(
   <div>
-    <PluginComponent authoredState={authoredState} />
+    <InteractiveAndWRapper authoredState={authoredState} />
   </div>,
   document.getElementById("plugin")
 );

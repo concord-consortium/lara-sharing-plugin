@@ -5,10 +5,10 @@ import * as css from "./authoring-app.sass";
 import JsonEditor from "./json-editor";
 
 import { IAuthoredState } from "../../types";
-import PluginComponent from "../plugin-component";
+import PluginComponent from "../interactive-and-wrapper";
 
 const defaultProps: IAuthoredState = {
-  helloText: "Hello There!"
+  textContent: "Hello There!"
 };
 
 const portalDom = document.createElement("div");
@@ -29,7 +29,7 @@ export default class AuthoringApp extends React.Component<IProps, IState> {
 
   public render() {
     const { authoredState } = this.state;
-    const { helloText } = authoredState;
+    const { textContent } = authoredState;
     return (
       <div className={css.container}>
         <div className={css.preview}>

@@ -5,8 +5,8 @@ export interface IPluginConfig {
 }
 
 const PluginConfig: IPluginConfig = {
-  PluginName: "Demo Plugin",
-  PluginID: "lara-sharing-plugin"
+  PluginName: "LARA Sharing Plugin",
+  PluginID: "LaraSharingPlugin"
 };
 
 export default PluginConfig;

@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import PluginComponent from "./plugin-component";
+import SharingWrapper from "./sharing-wrapper";
 import { IAuthoredState } from "../types";
 
 interface IProps {
@@ -15,10 +15,12 @@ interface IState {}
 export default class PluginApp extends React.Component<IProps, IState> {
 
   public render() {
-    const {authoredState} = this.props;
+    const {authoredState, wrappedEmbeddableDiv} = this.props;
     return(
       <div className="plugin-wrapper">
-        <PluginComponent authoredState={authoredState} />
+        <SharingWrapper
+          authoredState={authoredState}
+          wrappedEmbeddableDiv={wrappedEmbeddableDiv} />
       </div>
     );
   }
