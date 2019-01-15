@@ -4,8 +4,9 @@ context("Test the demo app", () => {
   });
 
   describe("Demo page", () => {
-    it("renders a plugin component", () => {
-      cy.get("#plugin").should((d) => expect(d).to.contain("Hello World"));
+    it("renders the demo page with wrapper component", () => {
+      const expectedText = "Interactive Sharing Text Here.";
+      cy.get("#plugin").should((d) => expect(d).to.contain(expectedText));
     });
   });
 });

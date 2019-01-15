@@ -14,11 +14,11 @@ const props: ISharingWrapperProps = {
   wrappedEmbeddableDiv: document.createElement("div")
 };
 
-describe("WindowShade component", () => {
+describe("Sharing Wrapper renders div", () => {
   it("renders Hello World", () => {
-    const wrapper = shallow(<SharingWrapper authoredState={props.authoredState}
-      wrappedEmbeddableDiv={props.wrappedEmbeddableDiv}
-    />);
+    const wrapper = shallow(
+      <SharingWrapper authoredState={props.authoredState}/>
+      );
     expect(wrapper.text()).toEqual(testingText);
   });
 });

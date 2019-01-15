@@ -5,7 +5,7 @@ import { IAuthoredState} from "./types";
 import InteractiveAndWRapper from "./components/interactive-and-wrapper";
 
 const authoredState: IAuthoredState = {
-  textContent: "Wrapper Text here."
+  textContent: "Interactive Sharing Text Here."
 };
 
 ReactDOM.render(
