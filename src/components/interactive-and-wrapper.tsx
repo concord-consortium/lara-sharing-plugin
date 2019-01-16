@@ -24,7 +24,7 @@ export default class InteractiveAndWrapper extends React.Component<IProps, IStat
     this.domRef = document.createElement("div");
     this.domRef.setAttribute("id", "wrapped-div");
     this.domRef.setAttribute("class", css.embeddableDiv);
-    this.domRef.innerHTML = `<iframe src="${url}"/>`;
+    this.domRef.innerHTML = `<div class="${css.questionHdr}">Question #1</div><iframe src="${url}"/>`;
   }
 
   public render() {
