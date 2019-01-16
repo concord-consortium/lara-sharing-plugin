@@ -1,16 +1,24 @@
 .wrapper
   padding: 0px;
   margin: 0px;
-  display: inline-block;
   position: relative;
   .wrappedContent
     font-size: 14pt;
     padding: 0.25em;
     position: absolute;
-    background-color: hsla(0, 10%, 10%, 0.80);
     top: 0px;
     left: 0px;
     right: 0px;
     height: 24px;
     text-align: right;
     color: white;
+
+.icon
+  background-color: transparent
+  fill: hsla(0,0%,100%, 1);
+  width: 24px;
+  margin-left: 5px;
+  &:hover
+    fill: hsla(0, 20%, 95%, 1);
+  &.disabled
+    fill: hsla(0, 0%,100%, 0.50);

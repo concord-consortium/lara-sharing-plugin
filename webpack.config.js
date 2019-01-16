@@ -48,7 +48,7 @@ module.exports = (env, argv) => {
                 modules: true,
                 sourceMap: true,
                 importLoaders: 1,
-                localIdentName: '[name]--[local]--TETipsPluginV1'
+                localIdentName: '[name]--[local]--SharingPluginV1'
               }
             },
             'postcss-loader',
