@@ -3,7 +3,7 @@ import {
   SharingWrapper,
   ISharingWrapperProps
 } from "./sharing-wrapper";
-import { shallow } from "enzyme";
+import { shallow, mount, render } from "enzyme";
 import { IAuthoredState } from "../types";
 const testingText =  "Hello World!";
 
@@ -14,11 +14,12 @@ const props: ISharingWrapperProps = {
   wrappedEmbeddableDiv: document.createElement("div")
 };
 
-describe("WindowShade component", () => {
-  it("renders Hello World", () => {
-    const wrapper = shallow(<SharingWrapper authoredState={props.authoredState}
-      wrappedEmbeddableDiv={props.wrappedEmbeddableDiv}
-    />);
-    expect(wrapper.text()).toEqual(testingText);
+describe("Sharing Wrapper", () => {
+  it("renders two SVG buttons", () => {
+    const wrapper = shallow(
+      <SharingWrapper authoredState={props.authoredState}/>
+      );
+    // expect(wrapper.find(".wrappedContent").length).toBe(1);
+    expect(wrapper.find(".wrappedContent .icon").length).toBe(2);
   });
 });
