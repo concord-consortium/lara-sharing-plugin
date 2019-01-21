@@ -3,7 +3,7 @@ import * as React from "react";
 import * as css from "./interactive-and-wrapper.sass";
 import { ISharingWrapperProps, SharingWrapper } from "./sharing-wrapper";
 import { IAuthoredState } from "../types";
-import { SharedClassData } from "./view-class";
+import { FirestoreStore } from "../stores/firestore";
 
 const testQuestionContext = {
   type: "Embeddable::MultipleChoice",
@@ -12,7 +12,7 @@ const testQuestionContext = {
 interface IProps {
   authoredState: IAuthoredState;
   updateFunction?: (nextState: ISharingWrapperProps) => void;
-  sharedClassData?: SharedClassData;
+  store: FirestoreStore;
 }
 
 interface IState {}
@@ -35,7 +35,7 @@ export default class InteractiveAndWrapper extends React.Component<IProps, IStat
       <SharingWrapper
         authoredState={authoredState}
         wrappedEmbeddableDiv={this.domRef}
-        sharedClassData={this.props.sharedClassData}
+        store={this.props.store}
       />
     );
   }
