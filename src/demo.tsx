@@ -3,14 +3,15 @@ import * as ReactDOM from "react-dom";
 
 import { IAuthoredState} from "./types";
 import InteractiveAndWrapper from "./components/interactive-and-wrapper";
-import { FirestoreStore } from "./stores/firestore";
+import { store } from "./stores/firestore";
 
 const authoredState: IAuthoredState = {
   textContent: "Sharing"
 };
 
-const store = new FirestoreStore({isDemo: true});
-store.init();
+store.init({
+  type: "demo"
+});
 
 ReactDOM.render(
   <div>

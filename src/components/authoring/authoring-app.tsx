@@ -6,7 +6,7 @@ import JsonEditor from "./json-editor";
 
 import { IAuthoredState } from "../../types";
 import PluginComponent from "../interactive-and-wrapper";
-import { FirestoreStore } from "../../stores/firestore";
+import { store } from "../../stores/firestore";
 
 const defaultProps: IAuthoredState = {
   textContent: "Hello There!"
@@ -22,8 +22,8 @@ interface IState {
   authoredState: IAuthoredState;
 }
 
-const store = new FirestoreStore({});
 // TODO: figure out store.init()...
+// store.init({"type": "lara"});
 
 // Headless container that provides state to children.
 export default class AuthoringApp extends React.Component<IProps, IState> {

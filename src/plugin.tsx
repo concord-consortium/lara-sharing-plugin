@@ -3,7 +3,10 @@ import * as ReactDOM from "react-dom";
 import PluginApp from "./components/plugin-app";
 import PluginConfig from "./config/plugin-config";
 import {IExternalScriptContext, ILara} from "./lara/interfaces";
-import { FirestoreStore } from "./stores/firestore";
+import { store } from "./stores/firestore";
+
+// TODO: figure out store.init()
+// store.init({type: "lara"});
 
 let PluginAPI: ILara;
 
@@ -25,11 +28,9 @@ const getAuthoredState = (context: IExternalScriptContext) => {
 export class TeacherEditionTipsPlugin {
   public context: IExternalScriptContext;
   public pluginAppComponent: any;
-  public store: FirestoreStore;
 
   constructor(context: IExternalScriptContext) {
     this.context = context;
-    this.store = new FirestoreStore({isDemo: false});
     // TODO: add store.init() after getting all data from lara
     this.renderPluginApp();
   }
@@ -42,7 +43,7 @@ export class TeacherEditionTipsPlugin {
         authoredState={authoredState}
         wrappedEmbeddableDiv={this.context.wrappedEmbeddableDiv}
         PluginAPI={PluginAPI}
-        store={this.store}
+        store={store}
       />,
       this.context.div);
   }

@@ -5,11 +5,12 @@ import {
 } from "./sharing-wrapper";
 import { shallow, mount, render } from "enzyme";
 import { IAuthoredState } from "../types";
-import { FirestoreStore } from "../stores/firestore";
+import { store } from "../stores/firestore";
 const testingText =  "Hello World!";
 
-const store = new FirestoreStore({isTest: true});
-store.init();
+store.init({
+  type: "test"
+});
 
 const props: ISharingWrapperProps = {
   authoredState: {
