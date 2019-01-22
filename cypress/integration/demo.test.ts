@@ -27,7 +27,7 @@ context("Test the demo app", () => {
 
     it("shows the list of students in the class view", () => {
       openViewClass();
-      cy.get("#plugin").find(".view-class--leftNavContents--SharingPluginV1 li").its("length").should("eq", 30);
+      cy.get("#plugin").find(".view-class--leftNavContents--SharingPluginV1 li").its("length").should("eq", 26);
     });
 
     it("shows the message to click on a student's name in the class view", () => {

@@ -1,23 +1,12 @@
 import * as React from "react";
 import * as css from "./view-class.sass";
 import ViewSharedIcon from "./icons/view-shared.svg";
-
-// TODO: move these interfaces to a data store
-
-export interface SharedClassData {
-  interactiveName: string;
-  students: SharedStudentData[];
-}
-
-export interface SharedStudentData {
-  userId: string;
-  displayName: string;
-  iframeUrl: string;
-}
+import { SharedClassData, SharedStudentData, FirestoreStore, FirestoreStoreCancelListener} from "../stores/firestore";
 
 export interface IViewClassProps {
   onClose: () => void;
-  sharedClassData?: SharedClassData;
+  store: FirestoreStore;
+  sharedClassData: SharedClassData | null;
 }
 
 interface IState {
@@ -25,6 +14,7 @@ interface IState {
 }
 
 export class ViewClass extends React.Component<IViewClassProps, IState> {
+
   public state: IState = {
     selectedStudent: null
   };

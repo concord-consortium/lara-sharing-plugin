@@ -4,26 +4,38 @@ import { IAuthoredState } from "../types";
 import ButtonShareIcon from "./icons/button-share.svg";
 import ButtonUnShareIcon from "./icons/button-unshare.svg";
 import ViewClassIcon from "./icons/view-class.svg";
-import ViewClass, { SharedClassData } from "./view-class";
+import ViewClass from "./view-class";
+import { SharedClassData, FirestoreStore, FirestoreStoreCancelListener } from "../stores/firestore";
 
 export interface ISharingWrapperProps {
   authoredState: IAuthoredState;
   wrappedEmbeddableDiv?: HTMLDivElement;
-  sharedClassData?: SharedClassData;
+  store: FirestoreStore;
 }
 
 interface IState {
-  isShared: boolean;
   showViewClass: boolean;
+  sharedClassData: SharedClassData | null;
 }
 
 export class SharingWrapper extends React.Component<ISharingWrapperProps, IState> {
   public state: IState = {
-    isShared: false,
     showViewClass: false,
+    sharedClassData: null
   };
 
+  private cancelListener: FirestoreStoreCancelListener;
   private wrappedEmbeddableDivContainer = React.createRef<HTMLDivElement>();
+
+  public componentWillMount() {
+    this.cancelListener = this.props.store.listen((classData) => {
+      this.setState({sharedClassData: classData});
+    });
+  }
+
+  public componentWillUnmount() {
+    this.cancelListener();
+  }
 
   public componentDidMount() {
     const { wrappedEmbeddableDiv } = this.props;
@@ -38,36 +50,55 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
   }
 
   public render() {
-    const { authoredState, sharedClassData } = this.props;
-    const { textContent } = authoredState;
-    const { isShared, showViewClass} = this.state;
+    const { store } = this.props;
+    const { showViewClass, sharedClassData: classData} = this.state;
 
     const wrapperClass = css.wrapper;
-    const wrappedContentClass = css.wrappedContent;
-    const shareIcon = isShared
-      ? <ButtonShareIcon className={css.icon} onClick={this.toggleShared}/>
-      : <ButtonUnShareIcon className={css.icon} onClick={this.toggleShared}/>;
-    const viewIconClass = isShared
-      ? css.icon
-      : `${css.icon} ${css.disabled}`;
     return (
       <div className={wrapperClass}>
         <div ref={this.wrappedEmbeddableDivContainer} />
-        <div className={wrappedContentClass}>
-          {/* {textContent} */}
-          {shareIcon}
-          <ViewClassIcon className={viewIconClass} onClick={this.toggleShowView}/>
-        </div>
-        {showViewClass ? <ViewClass onClose={this.handleCloseViewClass} sharedClassData={sharedClassData} /> : null}
+        {this.renderIcons()}
+        {showViewClass ? <ViewClass onClose={this.handleCloseViewClass} store={store} sharedClassData={classData} /> : null}
       </div>
     );
   }
-  private toggleShared = () => this.setState({isShared: !this.state.isShared});
+
+  private renderIcons() {
+    const { sharedClassData: classData } = this.state;
+
+    if (classData) {
+      const { currentUserIsShared: isShared } = classData;
+      const wrappedContentClass = css.wrappedContent;
+      const shareIcon = isShared
+        ? <ButtonShareIcon className={css.icon} onClick={this.toggleShared}/>
+        : <ButtonUnShareIcon className={css.icon} onClick={this.toggleShared}/>;
+      const viewIconClass = isShared
+        ? css.icon
+        : `${css.icon} ${css.disabled}`;
+      const viewIcon = <ViewClassIcon className={viewIconClass} onClick={this.toggleShowView}/>;
+
+      return (
+        <div className={wrappedContentClass}>
+          {shareIcon}
+          {viewIcon}
+        </div>
+      );
+    }
+  }
+
+  private toggleShared = () => {
+    // TODO: get iframeUrl
+    const iframeUrl = "https://sagemodeler.concord.org/branch/master/?launchFromLara=eyJyZWNvcmRpZCI6ODMwMTYsImFjY2Vzc0tleXMiOnsicmVhZE9ubHkiOiI5YTQzMjdhYmE0NGZlOTJlYzhiMDkxNWM0MjA1OWYwZGY1MThmMTdmIn19";
+    this.props.store.toggleShare(iframeUrl);
+  }
+
   private toggleShowView = () => {
-    if (this.state.isShared) {
+    const { sharedClassData: classData } = this.state;
+    if (classData && classData.currentUserIsShared) {
       this.setState({showViewClass: !this.state.showViewClass});
     }
   }
+
   private handleCloseViewClass = () => this.setState({showViewClass: false});
 }
 export default SharingWrapper;

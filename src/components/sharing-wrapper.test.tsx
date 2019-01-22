@@ -5,21 +5,25 @@ import {
 } from "./sharing-wrapper";
 import { shallow, mount, render } from "enzyme";
 import { IAuthoredState } from "../types";
+import { FirestoreStore } from "../stores/firestore";
 const testingText =  "Hello World!";
+
+const store = new FirestoreStore({isTest: true});
+store.init();
 
 const props: ISharingWrapperProps = {
   authoredState: {
     textContent: testingText
   },
-  wrappedEmbeddableDiv: document.createElement("div")
+  wrappedEmbeddableDiv: document.createElement("div"),
+  store
 };
 
 describe("Sharing Wrapper", () => {
   it("renders two SVG buttons", () => {
     const wrapper = shallow(
-      <SharingWrapper authoredState={props.authoredState}/>
-      );
-    // expect(wrapper.find(".wrappedContent").length).toBe(1);
+      <SharingWrapper authoredState={props.authoredState} store={props.store} />
+    );
     expect(wrapper.find(".wrappedContent .icon").length).toBe(2);
   });
 });

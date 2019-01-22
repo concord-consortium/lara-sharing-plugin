@@ -6,6 +6,7 @@ import JsonEditor from "./json-editor";
 
 import { IAuthoredState } from "../../types";
 import PluginComponent from "../interactive-and-wrapper";
+import { FirestoreStore } from "../../stores/firestore";
 
 const defaultProps: IAuthoredState = {
   textContent: "Hello There!"
@@ -21,6 +22,9 @@ interface IState {
   authoredState: IAuthoredState;
 }
 
+const store = new FirestoreStore({});
+// TODO: figure out store.init()...
+
 // Headless container that provides state to children.
 export default class AuthoringApp extends React.Component<IProps, IState> {
   public state: IState = {
@@ -33,7 +37,7 @@ export default class AuthoringApp extends React.Component<IProps, IState> {
     return (
       <div className={css.container}>
         <div className={css.preview}>
-          <PluginComponent authoredState={authoredState} />
+          <PluginComponent authoredState={authoredState} store={store} />
         </div>
         <div className={css.json}>
           <JsonEditor authoredState={authoredState} onSave={this.updateState} />
