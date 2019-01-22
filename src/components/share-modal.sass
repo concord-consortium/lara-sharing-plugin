@@ -1,0 +1,56 @@
+@import "vars"
+
+$titleBarHeight: 30px
+
+.shareModal
+  position: fixed
+  top: 0
+  right: 0
+  bottom: 0
+  left: 0
+  display: flex
+  align-items: center
+  justify-content: center
+  height: 100%
+
+  .dialog
+    background-color: #cfe2f3
+    border: 1px solid #000
+    border-radius: $border-radius
+    width: 400px
+
+  .titleBar
+    height: $titleBarHeight
+    background-color: #9fc5e8
+    border-bottom: 1px solid #000
+    border-radius: $border-radius $border-radius 0 0
+    user-select: none
+
+    .titleBarContents
+      height: $titleBarHeight
+      display: flex
+      justify-content: space-around
+
+      .left
+        flex-grow: 0
+        fill: #000
+        padding-left: 3px
+        font-size: 1.2em
+      .center
+        flex-grow: 1
+        font-weight: bold
+        text-align: center
+        padding-top: 7px
+      .right
+        flex-grow: 0
+        fill: #fff
+        font-weight: bold
+
+      .icon
+        background-color: transparent
+        width: 1em
+        margin: 0 10px 0 5px
+
+  .contents
+    padding: 10px 20px
+    text-align: center

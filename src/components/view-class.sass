@@ -1,7 +1,7 @@
-$titleBarHeight: 40px
+@import "vars"
+
+$titleBarHeight: 34px
 $leftNavWidth: 180px
-$border-radius: 20px
-$border-width: 1px
 
 .viewClass
   position: fixed
@@ -25,20 +25,30 @@ $border-width: 1px
     user-select: none
 
     .titleBarContents
-      padding: 8px 10px
+      height: $titleBarHeight
       font-size: 1.3em
+      display: flex
+      justify-content: space-around
+
+      .left
+        flex-grow: 0
+        fill: #000
+        padding-left: 8px
+      .center
+        flex-grow: 1
+        text-align: left
+        padding-top: 7px
+        font-size: 0.9em
+      .right
+        flex-grow: 0
+        fill: #fff
+        font-weight: bold
+        font-size: 0.7em
 
       .icon
         background-color: transparent
-        fill: #000
         width: 1.3em
         margin: 0 10px 0 5px
-
-      .titleBarClose
-        float: right
-        fill: #fff
-        font-weight: bold
-        font-size: 0.8em
 
   .leftNav
     position: absolute

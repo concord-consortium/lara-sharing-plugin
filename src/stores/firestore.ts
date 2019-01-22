@@ -132,11 +132,14 @@ export class FirestoreStore {
     if (this.classData) {
       if (this.classData.currentUserIsShared) {
         this.unshare();
+        return false;
       }
       else {
         this.share(iframeUrl);
+        return true;
       }
     }
+    return false;
   }
 
   public share(iframeUrl: string) {
