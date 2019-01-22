@@ -51,23 +51,23 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
 
   public render() {
     const { store } = this.props;
-    const { showViewClass, sharedClassData: classData} = this.state;
+    const { showViewClass, sharedClassData} = this.state;
 
     const wrapperClass = css.wrapper;
     return (
       <div className={wrapperClass}>
         <div ref={this.wrappedEmbeddableDivContainer} />
         {this.renderIcons()}
-        {showViewClass ? <ViewClass onClose={this.handleCloseViewClass} store={store} sharedClassData={classData} /> : null}
+        {showViewClass ? <ViewClass onClose={this.handleCloseViewClass} store={store} sharedClassData={sharedClassData} /> : null}
       </div>
     );
   }
 
   private renderIcons() {
-    const { sharedClassData: classData } = this.state;
+    const { sharedClassData } = this.state;
 
-    if (classData) {
-      const { currentUserIsShared: isShared } = classData;
+    if (sharedClassData) {
+      const { currentUserIsShared: isShared } = sharedClassData;
       const wrappedContentClass = css.wrappedContent;
       const shareIcon = isShared
         ? <ButtonShareIcon className={css.icon} onClick={this.toggleShared}/>
@@ -87,7 +87,7 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
   }
 
   private toggleShared = () => {
-    // TODO: get iframeUrl
+    // TODO: get iframeUrl from Lara
     const iframeUrl = "https://sagemodeler.concord.org/branch/master/?launchFromLara=eyJyZWNvcmRpZCI6ODMwMTYsImFjY2Vzc0tleXMiOnsicmVhZE9ubHkiOiI5YTQzMjdhYmE0NGZlOTJlYzhiMDkxNWM0MjA1OWYwZGY1MThmMTdmIn19";
     this.props.store.toggleShare(iframeUrl);
   }

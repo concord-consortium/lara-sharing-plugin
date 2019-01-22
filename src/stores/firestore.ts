@@ -16,24 +16,31 @@ export interface SharedStudentData extends SharedStudentFirestoreData {
   displayName: string;
 }
 
-export interface FirestoreParams {
-  isDemo?: boolean;
-  isTest?: boolean;
-}
-
 // maps userId to displayName
 export interface SharedClassUserMap {
   [key: string]: string | undefined;
 }
 
-export interface InitFirestoreParams {
+export interface InitDemoFirestoreParams {
+  type: "demo";
+}
+
+export interface InitTestFirestoreParams {
+  type: "test";
+}
+
+export interface InitLaraFirestoreParams {
+  type: "lara";
   rawFirebaseJWT: string;
   portalDomain: string;
   offeringId: string;
   pluginId: string;
   portalUserId: string;
   userMap: SharedClassUserMap;
+  interactiveName: string;
 }
+
+export type InitFirestoreParams = InitDemoFirestoreParams | InitTestFirestoreParams | InitLaraFirestoreParams;
 
 interface CurrentUserInfo {
   userId: string;
@@ -45,17 +52,16 @@ export type FirestoreStoreListener = (sharedClassData: SharedClassData | null) =
 export type FirestoreStoreCancelListener = () => void;
 
 export class FirestoreStore {
-  public readonly isDemo: boolean;
-  public readonly isTest: boolean;
+  public readonly type: "demo" | "test" | "lara";
+  private initialized: boolean;
   private listeners: FirestoreStoreListener[];
   private db: firebase.firestore.Firestore;
   private classData: SharedClassData | null;
   private currentUser: CurrentUserInfo | null;
   private userMap: SharedClassUserMap;
 
-  constructor(params: FirestoreParams) {
-    this.isDemo = !!params.isDemo;
-    this.isTest = !!params.isTest;
+  constructor() {
+    this.initialized = false;
     this.listeners = [];
     this.classData = null;
     this.currentUser = null;
@@ -78,60 +84,42 @@ export class FirestoreStore {
     this.db.settings(settings);
   }
 
-  public init(params?: InitFirestoreParams) {
-    if (this.isDemo) {
-      const classData: SharedClassData = this.classData = {
-        currentUserIsShared: false,
-        interactiveName: "Demo Interactive",
-        students: []
-      };
+  public init(params: InitFirestoreParams) {
+    if (this.initialized) {
+      throw new Error("Firestore store already initialized!");
+    }
+    this.initialized = true;
 
-      const studentDemoData = this.createDemoData();
-      studentDemoData.onSnapshot((snapshot) => {
+    const interactiveName =
+      params.type === "demo" ? "Demo Interactive" : (
+      params.type === "test" ? "Test Interactive" :
+      params.interactiveName
+    );
+    this.classData = {
+      currentUserIsShared: false,
+      interactiveName,
+      students: []
+    };
 
-        // get the updated student data
-        const currentUserId = this.currentUser ? this.currentUser.userId : null;
-        classData.currentUserIsShared = false;
-        classData.students = [];
-        snapshot.forEach((doc) => {
-          const studentData = doc.data() as SharedStudentFirestoreData;
-          const { userId, iframeUrl } = studentData;
-          if (userId === currentUserId) {
-            classData.currentUserIsShared = true;
-          }
+    switch (params.type) {
+      case "demo":
+        const studentDemoData = this.createDemoData();
+        this.listenForChanges(studentDemoData);
+        break;
 
-          const displayName = this.userMap[userId];
-          if (displayName) {
-            classData.students.push({
-              userId,
-              displayName,
-              iframeUrl,
-            });
-          }
-        });
-
-        // sort by display name
-        classData.students.sort((a, b) => a.displayName < b.displayName ? -1 : (a.displayName > b.displayName ? 1 : 0));
-
+      case "test":
+        // TODO: figure out how to handle tests - use fake firestore? - for now just notify with no students
         this.notifyListeners();
-      });
-    }
-    else if (this.isTest) {
-      const classData: SharedClassData = this.classData = {
-        currentUserIsShared: false,
-        interactiveName: "Test Interactive",
-        students: []
-      };
-      // TODO: figure out how to handle tests - use fake firestore?
+        break;
 
-      this.notifyListeners();
-    }
-    else {
-      // TODO: use params to set current user, userMap and class data and create key and start listening to changes to student data
+      case "lara":
+        // TODO: use params to set current user, userMap and class data and create key and start listening to changes to student data
+        break;
     }
   }
 
   public listen(listener: FirestoreStoreListener): FirestoreStoreCancelListener {
+    this.ensureInitalized();
     this.listeners.push(listener);
     listener(this.classData);
     return () => {
@@ -140,6 +128,7 @@ export class FirestoreStore {
   }
 
   public toggleShare(iframeUrl: string) {
+    this.ensureInitalized();
     if (this.classData) {
       if (this.classData.currentUserIsShared) {
         this.unshare();
@@ -151,6 +140,7 @@ export class FirestoreStore {
   }
 
   public share(iframeUrl: string) {
+    this.ensureInitalized();
     if (this.currentUser) {
       const { userId } = this.currentUser;
       const student: SharedStudentFirestoreData = {
@@ -162,9 +152,52 @@ export class FirestoreStore {
   }
 
   public unshare() {
+    this.ensureInitalized();
     if (this.currentUser) {
       return this.currentUser.docRef.delete();
     }
+  }
+
+  private ensureInitalized() {
+    if (!this.initialized) {
+      throw new Error("Firestore store not initialized!");
+    }
+  }
+
+  private listenForChanges(collection: firebase.firestore.CollectionReference) {
+    const classData = this.classData;
+    if (!classData) {
+      throw new Error("classData not defined before listenForChanges called");
+    }
+
+    collection.onSnapshot((snapshot) => {
+
+      // get the updated student data
+      const currentUserId = this.currentUser ? this.currentUser.userId : null;
+      classData.currentUserIsShared = false;
+      classData.students = [];
+      snapshot.forEach((doc) => {
+        const studentData = doc.data() as SharedStudentFirestoreData;
+        const { userId, iframeUrl } = studentData;
+        if (userId === currentUserId) {
+          classData.currentUserIsShared = true;
+        }
+
+        const displayName = this.userMap[userId];
+        if (displayName) {
+          classData.students.push({
+            userId,
+            displayName,
+            iframeUrl,
+          });
+        }
+      });
+
+      // sort by display name
+      classData.students.sort((a, b) => a.displayName < b.displayName ? -1 : (a.displayName > b.displayName ? 1 : 0));
+
+      this.notifyListeners();
+    });
   }
 
   private notifyListeners() {
@@ -200,3 +233,5 @@ export class FirestoreStore {
     return studentDemoData;
   }
 }
+
+export const store = new FirestoreStore();
