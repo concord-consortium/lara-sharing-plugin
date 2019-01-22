@@ -50,6 +50,7 @@ export class TeacherEditionTipsPlugin {
     ])
     .then( ([jwtResponse, classInfo, interactiveState]) => {
       const config = getFireStoreParams(context, jwtResponse, classInfo, interactiveState);
+      // tslint:disable-next-line:no-console
       console.log(config);
       store.init(config);
       this.renderPluginApp();

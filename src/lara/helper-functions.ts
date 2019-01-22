@@ -24,7 +24,9 @@ export const getFirebaseJWT = (context: IExternalScriptContext, appname: string)
           const claims = JSON.parse(claimsJson);
           resolve({token: data, claims});
         } catch (error) {
+          // tslint:disable-next-line:no-console
           console.error("unable to parse JWT Token");
+          // tslint:disable-next-line:no-console
           console.error(error);
         }
         resolve({token: data, claims: {}});
