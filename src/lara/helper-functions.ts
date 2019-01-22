@@ -3,7 +3,8 @@ import {
   IJwtResponse,
   IJwtClaims,
   IClassInfo,
-  IInteractiveState
+  IInteractiveState,
+  IUser
 } from "./interfaces";
 import {
   SharedClassUserMap,
@@ -58,6 +59,17 @@ export const portalUserPathToFirebaseId = (portalUserPath: string) => {
   return portalUserPath.replace(replaceRegx, firebaseReplacement);
 };
 
+const studentValue = (student: IUser): string => {
+  const {first_name, last_name} = student;
+  const first = (first_name && first_name.length > 0)
+     ? first_name.charAt(0).toUpperCase() + first_name.slice(1)
+     : "";
+  const last = (last_name && last_name.length > 0)
+     ? last_name.charAt(0).toUpperCase() + first_name.slice(1)
+     : "";
+  return `${first} ${last}`;
+};
+
 export const getFireStoreParams = (
   context: IExternalScriptContext,
   jwt: IJwtResponse,
@@ -75,10 +87,11 @@ export const getFireStoreParams = (
     const classHash = classInfo.class_hash;
     // TODO: I don't think we need to initialize this from here....
     // This would erase all share info
-    // classInfo.students.forEach( (student) => {
-    //   const key = portalUserPathToFirebaseId(student.id);
-    //   userMap[key] = undefined;
-    // });
+    classInfo.students.forEach( (student) => {
+      const key = portalUserPathToFirebaseId(student.id);
+      const value = studentValue(student);
+      userMap[key] = value;
+    });
     return {
       rawFirebaseJWT,
       portalDomain,

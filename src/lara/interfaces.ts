@@ -35,8 +35,8 @@ export interface IJwtResponse {
 
 export interface IUser {
   id: string; // path
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
 }
 export interface IOffering {
   id: number;

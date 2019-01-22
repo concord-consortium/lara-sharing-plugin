@@ -42,7 +42,6 @@ export class TeacherEditionTipsPlugin {
   constructor(context: IExternalScriptContext) {
     this.context = context;
     this.authoredState = getAuthoredState(context);
-    // TODO: add store.init() after getting all data from lara
     Promise.all([
       getFirebaseJWT(context, this.authoredState.firebaseAppName || DefaultFirebaseApp),
       getClassInfo(context),
@@ -53,6 +52,9 @@ export class TeacherEditionTipsPlugin {
       // tslint:disable-next-line:no-console
       console.log(config);
       store.init(config);
+      // If we call `renderPluginApp()` before `store.init()` we get
+      //     Error: Firestore store not initialized!
+      //     at ensureInitalized (firestore.ts:164)
       this.renderPluginApp();
     });
   }
