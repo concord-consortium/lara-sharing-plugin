@@ -6,6 +6,7 @@ context("Test the demo app", () => {
   describe("Demo page", () => {
     const openViewClass = () => {
       cy.get("#plugin").find(".sharing-wrapper--icon--SharingPluginV1").eq(0).click();
+      cy.get("#plugin").find(".share-modal--right--SharingPluginV1").eq(0).click();
       cy.get("#plugin").find(".sharing-wrapper--icon--SharingPluginV1").eq(1).click();
     };
 

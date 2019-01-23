@@ -5,6 +5,7 @@ import ButtonShareIcon from "./icons/button-share.svg";
 import ButtonUnShareIcon from "./icons/button-unshare.svg";
 import ViewClassIcon from "./icons/view-class.svg";
 import ViewClass from "./view-class";
+import ShareModal from "./share-modal";
 import { SharedClassData, FirestoreStore, FirestoreStoreCancelListener } from "../stores/firestore";
 
 export interface ISharingWrapperProps {
@@ -15,12 +16,16 @@ export interface ISharingWrapperProps {
 
 interface IState {
   showViewClass: boolean;
+  showShareModal: boolean;
+  dontShowShareModal: boolean;
   sharedClassData: SharedClassData | null;
 }
 
 export class SharingWrapper extends React.Component<ISharingWrapperProps, IState> {
   public state: IState = {
     showViewClass: false,
+    showShareModal: false,
+    dontShowShareModal: false,
     sharedClassData: null
   };
 
@@ -51,13 +56,14 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
 
   public render() {
     const { store } = this.props;
-    const { showViewClass, sharedClassData} = this.state;
+    const { showShareModal, showViewClass, sharedClassData} = this.state;
 
     const wrapperClass = css.wrapper;
     return (
       <div className={wrapperClass}>
         <div ref={this.wrappedEmbeddableDivContainer} />
         {this.renderIcons()}
+        {showShareModal ? <ShareModal onClose={this.handleCloseShowModal} sharedClassData={sharedClassData} /> : null}
         {showViewClass ? <ViewClass onClose={this.handleCloseViewClass} store={store} sharedClassData={sharedClassData} /> : null}
       </div>
     );
@@ -88,8 +94,11 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
 
   private toggleShared = () => {
     // TODO: get iframeUrl from Lara
-    const iframeUrl = "https://sagemodeler.concord.org/branch/master/?launchFromLara=eyJyZWNvcmRpZCI6ODMwMTYsImFjY2Vzc0tleXMiOnsicmVhZE9ubHkiOiI5YTQzMjdhYmE0NGZlOTJlYzhiMDkxNWM0MjA1OWYwZGY1MThmMTdmIn19";
-    this.props.store.toggleShare(iframeUrl);
+    const iframeUrl = "https://sagemodeler.concord.org/branch/use-codap-470/?launchFromLara=eyJyZWNvcmRpZCI6ODMwMTYsImFjY2Vzc0tleXMiOnsicmVhZE9ubHkiOiI5YTQzMjdhYmE0NGZlOTJlYzhiMDkxNWM0MjA1OWYwZGY1MThmMTdmIn19";
+    const shared = this.props.store.toggleShare(iframeUrl);
+    if (shared && !this.state.dontShowShareModal) {
+      this.setState({showShareModal: true});
+    }
   }
 
   private toggleShowView = () => {
@@ -100,5 +109,9 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
   }
 
   private handleCloseViewClass = () => this.setState({showViewClass: false});
+
+  private handleCloseShowModal = (dontShowAgain: boolean) => {
+    this.setState({showShareModal: false, dontShowShareModal: dontShowAgain});
+  }
 }
 export default SharingWrapper;

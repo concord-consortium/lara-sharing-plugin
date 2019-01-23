@@ -1,6 +1,8 @@
 import * as React from "react";
 import * as css from "./view-class.sass";
 import ViewSharedIcon from "./icons/view-shared.svg";
+import CloseIcon from "./icons/button-close.svg";
+
 import { SharedClassData, SharedStudentData, FirestoreStore, FirestoreStoreCancelListener} from "../stores/firestore";
 
 export interface IViewClassProps {
@@ -28,12 +30,12 @@ export class ViewClass extends React.Component<IViewClassProps, IState> {
       <div className={css.viewClass}>
         <div className={css.titleBar}>
           <div className={css.titleBarContents}>
-            <ViewSharedIcon className={css.icon} />
-            <strong>View Shared Classwork{haveInteractiveName ? ": " : ""}</strong>
-            {interactiveName}
-            <div className={css.titleBarClose} onClick={this.props.onClose}>
-              ✖
+            <ViewSharedIcon className={`${css.left} ${css.icon}`} />
+            <div className={css.center}>
+              <strong>View Shared Classwork{haveInteractiveName ? ": " : ""}</strong>
+              {interactiveName}
             </div>
+            <CloseIcon className={`${css.right} ${css.icon}`}  onClick={this.props.onClose} />
           </div>
         </div>
         <div className={css.leftNav}>
