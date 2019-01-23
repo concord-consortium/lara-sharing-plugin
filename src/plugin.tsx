@@ -2,8 +2,17 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import PluginApp from "./components/plugin-app";
 import PluginConfig from "./config/plugin-config";
+import { IAuthoredState } from "./types";
 import {IExternalScriptContext, ILara} from "./lara/interfaces";
 import { store } from "./stores/firestore";
+import {
+  getFirebaseJWT,
+  getClassInfo,
+  getInteractiveState,
+  getFireStoreParams
+} from "./lara/helper-functions";
+
+const DefaultFirebaseApp = "test-app";
 
 // TODO: figure out store.init()
 // store.init({type: "lara"});
@@ -27,12 +36,27 @@ const getAuthoredState = (context: IExternalScriptContext) => {
 
 export class TeacherEditionTipsPlugin {
   public context: IExternalScriptContext;
+  public authoredState: IAuthoredState;
   public pluginAppComponent: any;
 
   constructor(context: IExternalScriptContext) {
     this.context = context;
-    // TODO: add store.init() after getting all data from lara
-    this.renderPluginApp();
+    this.authoredState = getAuthoredState(context);
+    Promise.all([
+      getFirebaseJWT(context, this.authoredState.firebaseAppName || DefaultFirebaseApp),
+      getClassInfo(context),
+      getInteractiveState(context)
+    ])
+    .then( ([jwtResponse, classInfo, interactiveState]) => {
+      const config = getFireStoreParams(context, jwtResponse, classInfo, interactiveState);
+      // tslint:disable-next-line:no-console
+      console.log(config);
+      store.init(config);
+      // If we call `renderPluginApp()` before `store.init()` we get
+      //     Error: Firestore store not initialized!
+      //     at ensureInitalized (firestore.ts:164)
+      this.renderPluginApp();
+    });
   }
 
   public renderPluginApp = () => {

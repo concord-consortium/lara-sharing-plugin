@@ -4,4 +4,5 @@
  */
 export interface IAuthoredState {
   textContent: string;
+  firebaseAppName?: string;
 }

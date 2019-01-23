@@ -3,8 +3,62 @@ export interface IExternalScriptContext {
   authoredState: string;
   learnerState: string;
   pluginId: string;
-  wrappedEmbeddableDiv?: any;
+  url: string;
+  pluginStateKey: string;
+  runID: number;
+  userEmail: string;
+  classInfoUrl: string;
+  remoteEndpoint: string;
+  interactiveStateUrl: string;
+  getFirebaseJwtUrl: (appName: string) => string;
+  wrappedEmbeddableDiv?: HTMLDivElement;
   wrappedEmbeddableContext?: any;
+}
+
+export interface IPortalClaims {
+  user_type: "learner" | "teacher";
+  user_id: string;
+  class_hash: string;
+  offering_id: number;
+}
+export interface IJwtClaims {
+  domain: string;
+  returnUrl: string;
+  externalId: number;
+  class_info_url: string;
+  claims: IPortalClaims;
+}
+export interface IJwtResponse {
+  token: string;
+  claims: IJwtClaims | {};
+}
+
+export interface IUser {
+  id: string; // path
+  first_name: string;
+  last_name: string;
+}
+export interface IOffering {
+  id: number;
+  name: string;
+  url: string;
+}
+export interface IClassInfo {
+  id: number;
+  uri: string;
+  class_hash: string;
+  teachers: IUser[];
+  students: IUser[];
+  offerings: IOffering[];
+}
+
+export interface IInteractiveState {
+  id: number;
+  key: string;
+  raw_data: string;
+  interactive_name: string;
+  interactive_state_url: string;
+  activity_name: string;
 }
 
 // WARNING: Please refer to the latest LARA Api from the LARA project.

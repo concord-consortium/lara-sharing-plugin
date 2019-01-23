@@ -34,6 +34,7 @@ export interface InitLaraFirestoreParams {
   rawFirebaseJWT: string;
   portalDomain: string;
   offeringId: string;
+  classHash: string;
   pluginId: string;
   portalUserId: string;
   userMap: SharedClassUserMap;
