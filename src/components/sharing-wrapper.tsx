@@ -19,6 +19,7 @@ interface IState {
   showShareModal: boolean;
   dontShowShareModal: boolean;
   sharedClassData: SharedClassData | null;
+  clickToPlayShowing: boolean;
 }
 
 export class SharingWrapper extends React.Component<ISharingWrapperProps, IState> {
@@ -26,15 +27,26 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
     showViewClass: false,
     showShareModal: false,
     dontShowShareModal: false,
-    sharedClassData: null
+    sharedClassData: null,
+    clickToPlayShowing: false
   };
 
   private cancelListener: FirestoreStoreCancelListener;
   private wrappedEmbeddableDivContainer = React.createRef<HTMLDivElement>();
+  private monitorClickToPlayInterval: number | null;
 
   public componentWillMount() {
-    this.cancelListener = this.props.store.listen((classData) => {
-      this.setState({sharedClassData: classData});
+    this.cancelListener = this.props.store.listen((sharedClassData) => {
+      if (sharedClassData && sharedClassData.clickToPlayId && !this.monitorClickToPlayInterval) {
+        const { clickToPlayId } = sharedClassData;
+        const clickToPlayShowing = this.clickToPlayShowing(clickToPlayId);
+        this.setState({sharedClassData, clickToPlayShowing}, () => {
+          this.monitorClickToPlayInterval = this.monitorClickToPlay(clickToPlayId);
+        });
+      }
+      else {
+        this.setState({sharedClassData});
+      }
     });
   }
 
@@ -70,9 +82,9 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
   }
 
   private renderIcons() {
-    const { sharedClassData } = this.state;
+    const { sharedClassData, clickToPlayShowing } = this.state;
 
-    if (sharedClassData) {
+    if (sharedClassData && !clickToPlayShowing) {
       const { currentUserIsShared: isShared } = sharedClassData;
       const wrappedContentClass = css.wrappedContent;
       const shareIcon = isShared
@@ -112,6 +124,33 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
 
   private handleCloseShowModal = (dontShowAgain: boolean) => {
     this.setState({showShareModal: false, dontShowShareModal: dontShowAgain});
+  }
+
+  private elementVisible(element: HTMLElement) {
+    return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
+  }
+
+  private clickToPlayShowing(clickToPlayId: string) {
+    const element = document.getElementById(clickToPlayId);
+    return element ? this.elementVisible(element) : false;
+  }
+
+  private monitorClickToPlay(clickToPlayId: string) {
+    const element = document.getElementById(clickToPlayId);
+    if (!element) {
+      return null;
+    }
+
+    const checkIfClickToPlayIsVisible = () => {
+      const {clickToPlayShowing} = this.state;
+      const clickToPlayNowShowing = this.elementVisible(element);
+      if (clickToPlayShowing !== clickToPlayNowShowing) {
+        this.setState({clickToPlayShowing: clickToPlayNowShowing});
+      }
+    };
+    checkIfClickToPlayIsVisible();
+
+    return setInterval(checkIfClickToPlayIsVisible, 250);
   }
 }
 export default SharingWrapper;

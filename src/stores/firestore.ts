@@ -3,6 +3,7 @@ import * as firebase from "firebase";
 
 export interface SharedClassData {
   interactiveName: string;
+  clickToPlayId: string | null;
   currentUserIsShared: boolean;
   students: SharedStudentData[];
 }
@@ -39,6 +40,7 @@ export interface InitLaraFirestoreParams {
   portalUserId: string;
   userMap: SharedClassUserMap;
   interactiveName: string;
+  clickToPlayId: string;
 }
 
 export type InitFirestoreParams = InitDemoFirestoreParams | InitTestFirestoreParams | InitLaraFirestoreParams;
@@ -99,6 +101,7 @@ export class FirestoreStore {
     this.classData = {
       currentUserIsShared: false,
       interactiveName,
+      clickToPlayId: null,
       students: []
     };
 
@@ -114,7 +117,18 @@ export class FirestoreStore {
         break;
 
       case "lara":
-        // TODO: use params to set current user, userMap and class data and create key and start listening to changes to student data
+        this.userMap = params.userMap;
+        const userId = params.portalUserId;
+        const portalDomain = params.portalDomain.replace(/\//g, "-");
+        const path = `portals/${portalDomain}/classes/${params.classHash}/offerings/${params.offeringId}/plugins/${params.pluginId}/studentData`;
+        const pluginData = this.db.collection(path);
+        this.currentUser = {
+          userId,
+          displayName: params.userMap[userId] || "Unknown User",
+          docRef: pluginData.doc(userId),
+        };
+        this.classData.clickToPlayId = params.clickToPlayId;
+        this.listenForChanges(pluginData);
         break;
     }
   }

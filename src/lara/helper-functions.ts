@@ -65,7 +65,7 @@ const studentValue = (student: IUser): string => {
      ? first_name.charAt(0).toUpperCase() + first_name.slice(1)
      : "";
   const last = (last_name && last_name.length > 0)
-     ? last_name.charAt(0).toUpperCase() + first_name.slice(1)
+     ? last_name.charAt(0).toUpperCase() + "."
      : "";
   return `${first} ${last}`;
 };
@@ -85,14 +85,14 @@ export const getFireStoreParams = (
     const userMap: SharedClassUserMap = {};
     const interactiveName = interactiveState.interactive_name;
     const classHash = classInfo.class_hash;
-    // TODO: I don't think we need to initialize this from here....
-    // This would erase all share info
+    const clickToPlayId = context.clickToPlayId;
     classInfo.students.forEach( (student) => {
       const key = portalUserPathToFirebaseId(student.id);
       const value = studentValue(student);
       userMap[key] = value;
     });
-    return {
+    const params: InitLaraFirestoreParams = {
+      type: "lara",
       rawFirebaseJWT,
       portalDomain,
       offeringId,
@@ -101,6 +101,7 @@ export const getFireStoreParams = (
       userMap,
       interactiveName,
       classHash,
-      type: "lara"
+      clickToPlayId
     };
+    return params;
 };

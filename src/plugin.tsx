@@ -34,7 +34,7 @@ const getAuthoredState = (context: IExternalScriptContext) => {
   return authoredState;
 };
 
-export class TeacherEditionTipsPlugin {
+export class LaraSharingPlugin {
   public context: IExternalScriptContext;
   public authoredState: IAuthoredState;
   public pluginAppComponent: any;
@@ -83,7 +83,7 @@ export const initPlugin = () => {
   }
   // tslint:disable-next-line:no-console
   console.log(`LARA Plugin API available, ${PluginName} initialization`);
-  PluginAPI.registerPlugin(PluginID, TeacherEditionTipsPlugin);
+  PluginAPI.registerPlugin(PluginID, LaraSharingPlugin);
 };
 
 initPlugin();
