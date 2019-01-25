@@ -44,12 +44,25 @@ export const getClassInfo = (context: IExternalScriptContext): Promise<IClassInf
   });
 };
 
-export const getInteractiveState = (context: IExternalScriptContext): Promise<IInteractiveState> => {
-  const {interactiveStateUrl} = context;
+export const getInteractiveState = (stringOrContext: string | IExternalScriptContext): Promise<IInteractiveState> => {
+  const interactiveStateUrl = typeof stringOrContext === "string" ? stringOrContext : stringOrContext.interactiveStateUrl;
   return new Promise( (resolve, reject) => {
     fetch(interactiveStateUrl, {method: "get", credentials: "include"})
     .then( (resp) => resp.json().then( (data) => resolve(data)));
   });
+};
+
+export const getLaraReportingUrl = (interactiveRunState: IInteractiveState): string|undefined => {
+  try {
+    const rawJSON = JSON.parse(interactiveRunState.raw_data);
+    if (rawJSON && rawJSON.lara_options && rawJSON.lara_options.reporting_url) {
+      return rawJSON.lara_options.reporting_url;
+    }
+  }
+  catch (e) {
+    // tslint:disable-next-line:no-console
+    console.error(e);
+  }
 };
 
 export const portalUserPathToFirebaseId = (portalUserPath: string) => {
@@ -65,7 +78,7 @@ const studentValue = (student: IUser): string => {
      ? first_name.charAt(0).toUpperCase() + first_name.slice(1)
      : "";
   const last = (last_name && last_name.length > 0)
-     ? last_name.charAt(0).toUpperCase() + first_name.slice(1)
+     ? last_name.charAt(0).toUpperCase() + "."
      : "";
   return `${first} ${last}`;
 };
@@ -85,14 +98,15 @@ export const getFireStoreParams = (
     const userMap: SharedClassUserMap = {};
     const interactiveName = interactiveState.interactive_name;
     const classHash = classInfo.class_hash;
-    // TODO: I don't think we need to initialize this from here....
-    // This would erase all share info
+    const clickToPlayId = context.experimental.clickToPlayId;
+    const interactiveStateUrl = context.interactiveStateUrl;
     classInfo.students.forEach( (student) => {
       const key = portalUserPathToFirebaseId(student.id);
       const value = studentValue(student);
       userMap[key] = value;
     });
-    return {
+    const params: InitLaraFirestoreParams = {
+      type: "lara",
       rawFirebaseJWT,
       portalDomain,
       offeringId,
@@ -101,6 +115,8 @@ export const getFireStoreParams = (
       userMap,
       interactiveName,
       classHash,
-      type: "lara"
+      clickToPlayId,
+      interactiveStateUrl
     };
+    return params;
 };

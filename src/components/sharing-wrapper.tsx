@@ -7,6 +7,7 @@ import ViewClassIcon from "./icons/view-class.svg";
 import ViewClass from "./view-class";
 import ShareModal from "./share-modal";
 import { SharedClassData, FirestoreStore, FirestoreStoreCancelListener } from "../stores/firestore";
+import { getInteractiveState, getLaraReportingUrl } from "../lara/helper-functions";
 
 export interface ISharingWrapperProps {
   authoredState: IAuthoredState;
@@ -19,6 +20,7 @@ interface IState {
   showShareModal: boolean;
   dontShowShareModal: boolean;
   sharedClassData: SharedClassData | null;
+  clickToPlayShowing: boolean;
 }
 
 export class SharingWrapper extends React.Component<ISharingWrapperProps, IState> {
@@ -26,15 +28,26 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
     showViewClass: false,
     showShareModal: false,
     dontShowShareModal: false,
-    sharedClassData: null
+    sharedClassData: null,
+    clickToPlayShowing: false
   };
 
   private cancelListener: FirestoreStoreCancelListener;
   private wrappedEmbeddableDivContainer = React.createRef<HTMLDivElement>();
+  private monitorClickToPlayInterval: number | null;
 
   public componentWillMount() {
-    this.cancelListener = this.props.store.listen((classData) => {
-      this.setState({sharedClassData: classData});
+    this.cancelListener = this.props.store.listen((sharedClassData) => {
+      if (sharedClassData && sharedClassData.clickToPlayId && !this.monitorClickToPlayInterval) {
+        const { clickToPlayId } = sharedClassData;
+        const clickToPlayShowing = this.clickToPlayShowing(clickToPlayId);
+        this.setState({sharedClassData, clickToPlayShowing}, () => {
+          this.monitorClickToPlayInterval = this.monitorClickToPlay(clickToPlayId);
+        });
+      }
+      else {
+        this.setState({sharedClassData});
+      }
     });
   }
 
@@ -70,17 +83,18 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
   }
 
   private renderIcons() {
-    const { sharedClassData } = this.state;
+    const { sharedClassData, clickToPlayShowing } = this.state;
 
     if (sharedClassData) {
       const { currentUserIsShared: isShared } = sharedClassData;
       const wrappedContentClass = css.wrappedContent;
+      const shareIconEnabled = !clickToPlayShowing;
+      const toggleShared = shareIconEnabled ? this.toggleShared : undefined;
+      const shareIconClass = shareIconEnabled ? css.icon : `${css.icon} ${css.disabled}`;
+      const viewIconClass = isShared ? css.icon : `${css.icon} ${css.disabled}`;
       const shareIcon = isShared
-        ? <ButtonShareIcon className={css.icon} onClick={this.toggleShared}/>
-        : <ButtonUnShareIcon className={css.icon} onClick={this.toggleShared}/>;
-      const viewIconClass = isShared
-        ? css.icon
-        : `${css.icon} ${css.disabled}`;
+        ? <ButtonShareIcon className={shareIconClass} onClick={toggleShared}/>
+        : <ButtonUnShareIcon className={shareIconClass} onClick={toggleShared}/>;
       const viewIcon = <ViewClassIcon className={viewIconClass} onClick={this.toggleShowView}/>;
 
       return (
@@ -93,11 +107,31 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
   }
 
   private toggleShared = () => {
-    // TODO: get iframeUrl from Lara
-    const iframeUrl = "https://sagemodeler.concord.org/branch/use-codap-470/?launchFromLara=eyJyZWNvcmRpZCI6ODMwMTYsImFjY2Vzc0tleXMiOnsicmVhZE9ubHkiOiI5YTQzMjdhYmE0NGZlOTJlYzhiMDkxNWM0MjA1OWYwZGY1MThmMTdmIn19";
-    const shared = this.props.store.toggleShare(iframeUrl);
-    if (shared && !this.state.dontShowShareModal) {
-      this.setState({showShareModal: true});
+    const { sharedClassData } = this.state;
+    if (!sharedClassData) {
+      return;
+    }
+    const { type, interactiveStateUrl } = sharedClassData;
+
+    const toggleShare = (iframeUrl: string) => {
+      const shared = this.props.store.toggleShare(iframeUrl);
+      if (shared && !this.state.dontShowShareModal) {
+        this.setState({showShareModal: true});
+      }
+    };
+
+    if (type === "demo") {
+      toggleShare("https://sagemodeler.concord.org/branch/use-codap-470/?launchFromLara=eyJyZWNvcmRpZCI6ODMwMTYsImFjY2Vzc0tleXMiOnsicmVhZE9ubHkiOiI5YTQzMjdhYmE0NGZlOTJlYzhiMDkxNWM0MjA1OWYwZGY1MThmMTdmIn19");
+    }
+    else if (interactiveStateUrl) {
+      getInteractiveState(interactiveStateUrl)
+        .then((interactiveState) => {
+          const iframeUrl = getLaraReportingUrl(interactiveState);
+          if (iframeUrl) {
+            toggleShare(iframeUrl);
+          }
+        })
+        .catch((err) => alert(err.toString()));
     }
   }
 
@@ -112,6 +146,33 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
 
   private handleCloseShowModal = (dontShowAgain: boolean) => {
     this.setState({showShareModal: false, dontShowShareModal: dontShowAgain});
+  }
+
+  private elementVisible(element: HTMLElement) {
+    return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
+  }
+
+  private clickToPlayShowing(clickToPlayId: string) {
+    const element = document.getElementById(clickToPlayId);
+    return element ? this.elementVisible(element) : false;
+  }
+
+  private monitorClickToPlay(clickToPlayId: string) {
+    const element = document.getElementById(clickToPlayId);
+    if (!element) {
+      return null;
+    }
+
+    const checkIfClickToPlayIsVisible = () => {
+      const {clickToPlayShowing} = this.state;
+      const clickToPlayNowShowing = this.elementVisible(element);
+      if (clickToPlayShowing !== clickToPlayNowShowing) {
+        this.setState({clickToPlayShowing: clickToPlayNowShowing});
+      }
+    };
+    checkIfClickToPlayIsVisible();
+
+    return setInterval(checkIfClickToPlayIsVisible, 250);
   }
 }
 export default SharingWrapper;
