@@ -2,8 +2,10 @@ import * as firebase from "firebase";
 // import "firebase/firebase-firestore";
 
 export interface SharedClassData {
+  type: "demo" | "test" | "lara";
   interactiveName: string;
   clickToPlayId: string | null;
+  interactiveStateUrl: string | null;
   currentUserIsShared: boolean;
   students: SharedStudentData[];
 }
@@ -41,6 +43,7 @@ export interface InitLaraFirestoreParams {
   userMap: SharedClassUserMap;
   interactiveName: string;
   clickToPlayId: string;
+  interactiveStateUrl: string;
 }
 
 export type InitFirestoreParams = InitDemoFirestoreParams | InitTestFirestoreParams | InitLaraFirestoreParams;
@@ -99,9 +102,11 @@ export class FirestoreStore {
       params.interactiveName
     );
     this.classData = {
+      type: params.type,
       currentUserIsShared: false,
       interactiveName,
       clickToPlayId: null,
+      interactiveStateUrl: null,
       students: []
     };
 
@@ -128,6 +133,7 @@ export class FirestoreStore {
           docRef: pluginData.doc(userId),
         };
         this.classData.clickToPlayId = params.clickToPlayId;
+        this.classData.interactiveStateUrl = params.interactiveStateUrl;
         this.listenForChanges(pluginData);
         break;
     }

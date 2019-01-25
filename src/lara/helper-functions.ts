@@ -44,12 +44,25 @@ export const getClassInfo = (context: IExternalScriptContext): Promise<IClassInf
   });
 };
 
-export const getInteractiveState = (context: IExternalScriptContext): Promise<IInteractiveState> => {
-  const {interactiveStateUrl} = context;
+export const getInteractiveState = (stringOrContext: string | IExternalScriptContext): Promise<IInteractiveState> => {
+  const interactiveStateUrl = typeof stringOrContext === "string" ? stringOrContext : stringOrContext.interactiveStateUrl;
   return new Promise( (resolve, reject) => {
     fetch(interactiveStateUrl, {method: "get", credentials: "include"})
     .then( (resp) => resp.json().then( (data) => resolve(data)));
   });
+};
+
+export const getLaraReportingUrl = (interactiveRunState: IInteractiveState): string|undefined => {
+  try {
+    const rawJSON = JSON.parse(interactiveRunState.raw_data);
+    if (rawJSON && rawJSON.lara_options && rawJSON.lara_options.reporting_url) {
+      return rawJSON.lara_options.reporting_url;
+    }
+  }
+  catch (e) {
+    // tslint:disable-next-line:no-console
+    console.error(e);
+  }
 };
 
 export const portalUserPathToFirebaseId = (portalUserPath: string) => {
@@ -85,7 +98,8 @@ export const getFireStoreParams = (
     const userMap: SharedClassUserMap = {};
     const interactiveName = interactiveState.interactive_name;
     const classHash = classInfo.class_hash;
-    const clickToPlayId = context.clickToPlayId;
+    const clickToPlayId = context.experimental.clickToPlayId;
+    const interactiveStateUrl = context.interactiveStateUrl;
     classInfo.students.forEach( (student) => {
       const key = portalUserPathToFirebaseId(student.id);
       const value = studentValue(student);
@@ -101,7 +115,8 @@ export const getFireStoreParams = (
       userMap,
       interactiveName,
       classHash,
-      clickToPlayId
+      clickToPlayId,
+      interactiveStateUrl
     };
     return params;
 };
