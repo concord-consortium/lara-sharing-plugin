@@ -13,7 +13,7 @@ export interface IExternalScriptContext {
   getFirebaseJwtUrl: (appName: string) => string;
   wrappedEmbeddableDiv?: HTMLDivElement;
   wrappedEmbeddableContext?: any;
-  experimental: {
+  experimental?: {
     clickToPlayId: string;
   };
 }
