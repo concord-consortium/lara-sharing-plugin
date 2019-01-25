@@ -93,8 +93,8 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
       const shareIconClass = shareIconEnabled ? css.icon : `${css.icon} ${css.disabled}`;
       const viewIconClass = isShared ? css.icon : `${css.icon} ${css.disabled}`;
       const shareIcon = isShared
-        ? <ButtonShareIcon className={shareIconClass} onClick={toggleShared}/>
-        : <ButtonUnShareIcon className={shareIconClass} onClick={toggleShared}/>;
+        ? <ButtonUnShareIcon className={shareIconClass} onClick={toggleShared}/>
+        : <ButtonShareIcon className={shareIconClass} onClick={toggleShared}/>;
       const viewIcon = <ViewClassIcon className={viewIconClass} onClick={this.toggleShowView}/>;
 
       return (
