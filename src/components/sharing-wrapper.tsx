@@ -88,22 +88,20 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
       const { currentUserIsShared: isShared } = sharedClassData;
       const headerClass = css.wrappedHeader;
       const shareIconEnabled = !clickToPlayShowing;
-      const toggleShared = shareIconEnabled ? this.toggleShared : undefined;
-      const toggleShowView = isShared ? this.toggleShowView : undefined;
       const shareIcon = isShared ? <ButtonUnShareIcon /> : <ButtonShareIcon />;
       const shareTip = isShared ? "Stop sharing" : "Share this";
       const viewTip = "View class work";
       return (
         <div className={headerClass}>
           <ToggleButton
-            onClick={toggleShared}
+            onClick={this.toggleShared}
             enabled={true}
             tip={shareTip}
           >
             {shareIcon}
           </ToggleButton>
           <ToggleButton
-            onClick={toggleShowView}
+            onClick={this.toggleShowView}
             enabled={isShared}
             tip={viewTip}
           >

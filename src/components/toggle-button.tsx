@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as css from "./toggle-button.sass";
+import * as ReactTooltip from "react-tooltip";
 
 interface IToggleButtonProps {
   onClick: (() => void) | undefined;
@@ -10,9 +11,16 @@ interface IToggleButtonProps {
 
 const ToggleButton = (props: IToggleButtonProps) => {
   const {onClick, enabled, tip, children}  = props;
-  const className = enabled ? css.button : `${css.button} ${css.disabled}`;
-  return(
-    <span title={tip} className={className} onClick={onClick}>
+  if (enabled) {
+    return(
+      <span data-tip={tip} className={css.button} onClick={onClick}>
+        {children}
+        <ReactTooltip delayShow={800} globalEventOff="click"/>
+      </span>
+    );
+  }
+  return (
+    <span className={`${css.button} ${css.disabled}`}>
       {children}
     </span>
   );
