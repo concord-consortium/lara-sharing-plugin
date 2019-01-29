@@ -6,6 +6,8 @@ import ButtonUnShareIcon from "./icons/button-unshare.svg";
 import ViewClassIcon from "./icons/view-class.svg";
 import ViewClass from "./view-class";
 import ShareModal from "./share-modal";
+import ToggleButton from "./toggle-button";
+
 import { SharedClassData, FirestoreStore, FirestoreStoreCancelListener } from "../stores/firestore";
 import { getInteractiveState, getLaraReportingUrl } from "../lara/helper-functions";
 
@@ -62,9 +64,6 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
     }
     const containerNode = this.wrappedEmbeddableDivContainer.current!;
     containerNode.appendChild(wrappedEmbeddableDiv);
-    // if (containerNode) {
-    //   containerNode.appendChild(wrappedEmbeddableDiv);
-    // }
   }
 
   public render() {
@@ -87,20 +86,29 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
 
     if (sharedClassData) {
       const { currentUserIsShared: isShared } = sharedClassData;
-      const wrappedContentClass = css.wrappedContent;
+      const headerClass = css.wrappedHeader;
       const shareIconEnabled = !clickToPlayShowing;
       const toggleShared = shareIconEnabled ? this.toggleShared : undefined;
-      const shareIconClass = shareIconEnabled ? css.icon : `${css.icon} ${css.disabled}`;
-      const viewIconClass = isShared ? css.icon : `${css.icon} ${css.disabled}`;
-      const shareIcon = isShared
-        ? <ButtonUnShareIcon className={shareIconClass} onClick={toggleShared}/>
-        : <ButtonShareIcon className={shareIconClass} onClick={toggleShared}/>;
-      const viewIcon = <ViewClassIcon className={viewIconClass} onClick={this.toggleShowView}/>;
-
+      const toggleShowView = isShared ? this.toggleShowView : undefined;
+      const shareIcon = isShared ? <ButtonUnShareIcon /> : <ButtonShareIcon />;
+      const shareTip = isShared ? "Stop sharing" : "Share this";
+      const viewTip = "View class work";
       return (
-        <div className={wrappedContentClass}>
-          {shareIcon}
-          {viewIcon}
+        <div className={headerClass}>
+          <ToggleButton
+            onClick={toggleShared}
+            enabled={true}
+            tip={shareTip}
+          >
+            {shareIcon}
+          </ToggleButton>
+          <ToggleButton
+            onClick={toggleShowView}
+            enabled={isShared}
+            tip={viewTip}
+          >
+            <ViewClassIcon/>
+          </ToggleButton>
         </div>
       );
     }
