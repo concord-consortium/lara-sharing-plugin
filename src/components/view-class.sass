@@ -107,5 +107,24 @@ $leftNavWidth: 180px
         height: 100%
         border: 0
 
-
-
+      .fullScreenButton
+        font-size: 40px
+        position: absolute
+        right: 0.25em
+        bottom: 0.25em
+        cursor: pointer;
+        background: hsla(0, 0%, 100%, 0.5)
+        display: flex
+        align-items: center
+        justify-content: center
+        border-radius: 0.1em
+        padding: 0.25em
+        &:hover
+          background: hsla(0, 0%, 100%, 0.8)
+          svg
+            stroke: hsl(0, 0%, 40%)
+        svg
+          stroke: hsl(0, 0%, 70%)
+          fill: none
+          stroke-width: 2
+          stroke-miterlimit: 10

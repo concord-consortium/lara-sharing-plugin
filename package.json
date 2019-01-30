@@ -76,6 +76,7 @@
     "@types/react-dom": "^16.0.9",
     "@types/uuid": "^3.4.4",
     "@types/react-tooltip": "^3.9.0",
+    "@types/screenfull": "^3.3.2",
     "autoprefixer": "^9.3.1",
     "babel-core": "^6.26.3",
     "babel-jest": "^23.6.0",
@@ -117,6 +118,7 @@
     "markdown-to-jsx": "^6.8.3",
     "query-string": "^6.2.0",
     "react-tooltip": "^3.9.2",
+    "screenfull": "^4.0.0",
     "uuid": "^3.3.2"
   }
 }
