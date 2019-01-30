@@ -9,13 +9,13 @@ const authoredState: IAuthoredState = {
   textContent: "Sharing"
 };
 
-store.init({
-  type: "demo"
-});
-
-ReactDOM.render(
-  <div>
-    <InteractiveAndWrapper authoredState={authoredState} store={store} />
-  </div>,
-  document.getElementById("plugin")
-);
+store.init({type: "demo"})
+  .then(() => {
+    ReactDOM.render(
+      <div>
+        <InteractiveAndWrapper authoredState={authoredState} store={store} />
+      </div>,
+      document.getElementById("plugin")
+    );
+  })
+  .catch((err) => alert(err.toString()));

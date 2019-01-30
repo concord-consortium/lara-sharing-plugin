@@ -1,0 +1,10 @@
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /studentDemoData/{document=**} {
+      allow read, write: if request.auth.uid != null;
+    }
+    match /portals/{portal}/classes/{class}/{document=**} {
+      allow read, write: if request.auth.token.class_hash == class;
+    }
+  }
+}

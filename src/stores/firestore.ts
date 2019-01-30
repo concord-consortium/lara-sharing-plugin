@@ -91,52 +91,63 @@ export class FirestoreStore {
   }
 
   public init(params: InitFirestoreParams) {
-    if (this.initialized) {
-      throw new Error("Firestore store already initialized!");
-    }
-    this.initialized = true;
+    return new Promise<void>((resolve, reject) => {
+      if (this.initialized) {
+        return reject("Firestore store already initialized!");
+      }
+      this.initialized = true;
 
-    const interactiveName =
-      params.type === "demo" ? "Demo Interactive" : (
-      params.type === "test" ? "Test Interactive" :
-      params.interactiveName
-    );
-    this.classData = {
-      type: params.type,
-      currentUserIsShared: false,
-      interactiveName,
-      clickToPlayId: null,
-      interactiveStateUrl: null,
-      students: []
-    };
+      const interactiveName =
+        params.type === "demo" ? "Demo Interactive" : (
+        params.type === "test" ? "Test Interactive" :
+        params.interactiveName
+      );
+      const classData: SharedClassData = this.classData = {
+        type: params.type,
+        currentUserIsShared: false,
+        interactiveName,
+        clickToPlayId: null,
+        interactiveStateUrl: null,
+        students: []
+      };
 
-    switch (params.type) {
-      case "demo":
-        const studentDemoData = this.createDemoData();
-        this.listenForChanges(studentDemoData);
-        break;
+      switch (params.type) {
+        case "demo":
+          this.login()
+            .then(() => {
+              const studentDemoData = this.createDemoData();
+              this.listenForChanges(studentDemoData).then(resolve).catch(reject);
+            })
+            .catch(reject);
+          break;
 
-      case "test":
-        // TODO: figure out how to handle tests - use fake firestore? - for now just notify with no students
-        this.notifyListeners();
-        break;
+        case "test":
+          // TODO: figure out how to handle tests - use fake firestore? - for now just notify with no students
+          this.notifyListeners();
+          resolve();
+          break;
 
-      case "lara":
-        this.userMap = params.userMap;
-        const userId = params.portalUserId;
-        const portalDomain = params.portalDomain.replace(/\//g, "-");
-        const path = `portals/${portalDomain}/classes/${params.classHash}/offerings/${params.offeringId}/plugins/${params.pluginId}/studentData`;
-        const pluginData = this.db.collection(path);
-        this.currentUser = {
-          userId,
-          displayName: params.userMap[userId] || "Unknown User",
-          docRef: pluginData.doc(userId),
-        };
-        this.classData.clickToPlayId = params.clickToPlayId;
-        this.classData.interactiveStateUrl = params.interactiveStateUrl;
-        this.listenForChanges(pluginData);
-        break;
-    }
+        case "lara":
+          this.login(params.rawFirebaseJWT)
+            .then(() => {
+              this.userMap = params.userMap;
+              const userId = params.portalUserId;
+              const portalDomain = params.portalDomain.replace(/\//g, "-");
+              const path = `portals/${portalDomain}/classes/${params.classHash}/offerings/${params.offeringId}/plugins/${params.pluginId}/studentData`;
+              const pluginData = this.db.collection(path);
+              this.currentUser = {
+                userId,
+                displayName: params.userMap[userId] || "Unknown User",
+                docRef: pluginData.doc(userId),
+              };
+              classData.clickToPlayId = params.clickToPlayId;
+              classData.interactiveStateUrl = params.interactiveStateUrl;
+              this.listenForChanges(pluginData).then(resolve).catch(reject);
+            })
+            .catch(reject);
+          break;
+      }
+    });
   }
 
   public listen(listener: FirestoreStoreListener): FirestoreStoreCancelListener {
@@ -189,44 +200,72 @@ export class FirestoreStore {
   }
 
   private listenForChanges(collection: firebase.firestore.CollectionReference) {
-    const classData = this.classData;
-    if (!classData) {
-      throw new Error("classData not defined before listenForChanges called");
-    }
+    return new Promise<void>((resolve, reject) => {
+      const classData = this.classData;
+      if (!classData) {
+        return reject("classData not defined before listenForChanges called");
+      }
 
-    collection.onSnapshot((snapshot) => {
+      let firstSnapshot = true;
+      collection.onSnapshot((snapshot) => {
 
-      // get the updated student data
-      const currentUserId = this.currentUser ? this.currentUser.userId : null;
-      classData.currentUserIsShared = false;
-      classData.students = [];
-      snapshot.forEach((doc) => {
-        const studentData = doc.data() as SharedStudentFirestoreData;
-        const { userId, iframeUrl } = studentData;
-        if (userId === currentUserId) {
-          classData.currentUserIsShared = true;
+        // get the updated student data
+        const currentUserId = this.currentUser ? this.currentUser.userId : null;
+        classData.currentUserIsShared = false;
+        classData.students = [];
+        snapshot.forEach((doc) => {
+          const studentData = doc.data() as SharedStudentFirestoreData;
+          const { userId, iframeUrl } = studentData;
+          if (userId === currentUserId) {
+            classData.currentUserIsShared = true;
+          }
+
+          const displayName = this.userMap[userId];
+          if (displayName) {
+            classData.students.push({
+              userId,
+              displayName,
+              iframeUrl,
+            });
+          }
+        });
+
+        // sort by display name
+        classData.students.sort((a, b) => a.displayName < b.displayName ? -1 : (a.displayName > b.displayName ? 1 : 0));
+
+        this.notifyListeners();
+
+        if (firstSnapshot) {
+          firstSnapshot = false;
+          resolve();
         }
-
-        const displayName = this.userMap[userId];
-        if (displayName) {
-          classData.students.push({
-            userId,
-            displayName,
-            iframeUrl,
-          });
-        }
-      });
-
-      // sort by display name
-      classData.students.sort((a, b) => a.displayName < b.displayName ? -1 : (a.displayName > b.displayName ? 1 : 0));
-
-      this.notifyListeners();
+      }, (err) => reject(err));
     });
   }
 
   private notifyListeners() {
     this.listeners.forEach((listener) => {
       listener(this.classData);
+    });
+  }
+
+  private login(rawFirebaseJWT?: string) {
+    return new Promise<void>((resolve, reject) => {
+      firebase.auth().signOut().then(() => {
+        firebase.auth().onAuthStateChanged((firebaseUser) => {
+          if (firebaseUser) {
+            resolve();
+          }
+        });
+
+        if (rawFirebaseJWT) {
+          firebase.auth().signInWithCustomToken(rawFirebaseJWT).catch(reject);
+        }
+        else {
+          firebase.auth().signInAnonymously().catch(reject);
+        }
+      })
+      .catch(reject);
     });
   }
 
