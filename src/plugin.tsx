@@ -12,7 +12,7 @@ import {
   getFireStoreParams
 } from "./lara/helper-functions";
 
-const DefaultFirebaseApp = "test-app";
+const DefaultFirebaseApp = "share-plugin-dev";
 
 let PluginAPI: ILara;
 
