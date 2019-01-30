@@ -4,7 +4,7 @@ import * as screenfull from "screenfull";
 import * as css from "./view-class.sass";
 import ViewSharedIcon from "./icons/view-shared.svg";
 import CloseIcon from "./icons/button-close.svg";
-import FullSCreenIcon from "./icons/fullscreen.svg";
+import FullScreenIcon from "./icons/fullscreen.svg";
 
 import { SharedClassData, SharedStudentData, FirestoreStore, FirestoreStoreCancelListener} from "../stores/firestore";
 
@@ -105,11 +105,20 @@ export class ViewClass extends React.Component<IViewClassProps, IState> {
     return (
       <div className={css.viewerInteractive}>
         <iframe className={css.viewerInteractiveIFrame} src={selectedStudent.iframeUrl} ref={this.iFrameRef}/>
-        <div className={css.fullScreenButton} onClick={this.handleFullScreenClick}>
-          <FullSCreenIcon />
-        </div>
+        { this.renderFullScreenIcon() }
       </div>
     );
+  }
+
+  private renderFullScreenIcon = () => {
+    if (screenfull && screenfull.enabled) {
+      return (
+        <div className={css.fullScreenButton} onClick={this.handleFullScreenClick}>
+          <FullScreenIcon />
+        </div>
+      );
+    }
+    return null;
   }
 
   private renderViewerMessage(message: string|JSX.Element) {
@@ -127,7 +136,6 @@ export class ViewClass extends React.Component<IViewClassProps, IState> {
   }
 
   private handleFullScreenClick = () => {
-    const c = screenfull;
     if (screenfull && screenfull.enabled) {
       if (this.iFrameRef.current) {
         screenfull.request(this.iFrameRef.current as Element);
