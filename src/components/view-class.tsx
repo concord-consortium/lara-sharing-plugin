@@ -24,7 +24,7 @@ export class ViewClass extends React.Component<IViewClassProps, IState> {
     selectedStudent: null
   };
 
-  private iFrameRef = React.createRef();
+  private iFrameRef: React.RefObject<HTMLIFrameElement> = React.createRef();
 
   public render() {
     const { sharedClassData } = this.props;
