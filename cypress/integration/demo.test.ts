@@ -1,3 +1,9 @@
+const buttonSelector = ".toggle-button--button--SharingPluginV1";
+const modalCloseButton = ".share-modal--icon--SharingPluginV1";
+const closeModal = () => {
+  cy.get("#plugin").find(modalCloseButton).eq(1).click();
+};
+
 context("Test the demo app", () => {
   beforeEach(() => {
     cy.visit("/demo.html");
@@ -5,9 +11,9 @@ context("Test the demo app", () => {
 
   describe("Demo page", () => {
     const openViewClass = () => {
-      cy.get("#plugin").find(".sharing-wrapper--icon--SharingPluginV1").eq(0).click();
-      cy.get("#plugin").find(".share-modal--right--SharingPluginV1").eq(0).click();
-      cy.get("#plugin").find(".sharing-wrapper--icon--SharingPluginV1").eq(1).click();
+      cy.get("#plugin").find(buttonSelector).eq(0).click();
+      closeModal();
+      cy.get("#plugin").find(buttonSelector).eq(1).click();
     };
 
     it("renders the demo page with wrapper component and svg icons", () => {
@@ -16,7 +22,7 @@ context("Test the demo app", () => {
     });
 
     it("does not allow view class without share clicked first", () => {
-      cy.get("#plugin").find(".sharing-wrapper--icon--SharingPluginV1").eq(1).click();
+      cy.get("#plugin").find(buttonSelector).eq(1).click();
       cy.get("#plugin").find(".view-class--viewClass--SharingPluginV1").should("not.exist");
     });
 

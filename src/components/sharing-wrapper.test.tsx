@@ -22,9 +22,9 @@ const props: ISharingWrapperProps = {
 
 describe("Sharing Wrapper", () => {
   it("renders two SVG buttons", () => {
-    const wrapper = shallow(
+    const wrapper = render(
       <SharingWrapper authoredState={props.authoredState} store={props.store} />
     );
-    expect(wrapper.find(".wrappedContent .icon").length).toBe(2);
+    expect(wrapper.find(".wrappedHeader .button").length).toBe(2);
   });
 });
