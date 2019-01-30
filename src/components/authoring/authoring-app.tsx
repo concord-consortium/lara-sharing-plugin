@@ -23,7 +23,7 @@ interface IState {
 }
 
 // TODO: figure out store.init()...
-// store.init({"type": "lara"});
+// store.init({"type": "lara"}).then(...).catch(...);
 
 // Headless container that provides state to children.
 export default class AuthoringApp extends React.Component<IProps, IState> {

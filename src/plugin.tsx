@@ -14,9 +14,6 @@ import {
 
 const DefaultFirebaseApp = "test-app";
 
-// TODO: figure out store.init()
-// store.init({type: "lara"});
-
 let PluginAPI: ILara;
 
 const getAuthoredState = (context: IExternalScriptContext) => {
@@ -51,11 +48,9 @@ export class LaraSharingPlugin {
       const config = getFireStoreParams(context, jwtResponse, classInfo, interactiveState);
       // tslint:disable-next-line:no-console
       console.log(config);
-      store.init(config);
-      // If we call `renderPluginApp()` before `store.init()` we get
-      //     Error: Firestore store not initialized!
-      //     at ensureInitalized (firestore.ts:164)
-      this.renderPluginApp();
+      store.init(config)
+        .then(() => this.renderPluginApp())
+        .catch((err) => alert(err.toString()));
     });
   }
 
