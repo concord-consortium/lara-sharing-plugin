@@ -5,7 +5,7 @@ import * as css from "./authoring-app.sass";
 import JsonEditor from "./json-editor";
 
 import { IAuthoredState } from "../../types";
-import PluginComponent from "../interactive-and-wrapper";
+import PluginComponent from "./interactive-and-wrapper";
 import { store } from "../../stores/firestore";
 
 const defaultProps: IAuthoredState = {
@@ -61,4 +61,7 @@ export default class AuthoringApp extends React.Component<IProps, IState> {
 }
 
 const targetDiv = document.getElementById("window-shade-editor");
-ReactDOM.render(<AuthoringApp initialAuthoredState={defaultProps}/>, targetDiv);
+
+store.init({type: "demo"}).then (() => {
+  ReactDOM.render(<AuthoringApp initialAuthoredState={defaultProps}/>, targetDiv);
+});

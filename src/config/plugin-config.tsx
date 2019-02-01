@@ -22,5 +22,4 @@ export const FirebaseConfig = {
   messagingSenderId: "449409198581"
 };
 
-
 export default PluginConfig;

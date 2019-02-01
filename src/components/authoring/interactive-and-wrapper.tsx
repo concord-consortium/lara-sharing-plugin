@@ -1,9 +1,9 @@
 import * as React from "react";
 
 import * as css from "./interactive-and-wrapper.sass";
-import { ISharingWrapperProps, SharingWrapper } from "./sharing-wrapper";
-import { IAuthoredState } from "../types";
-import { FirestoreStore } from "../stores/firestore";
+import { ISharingWrapperProps, SharingWrapper } from "../sharing-wrapper";
+import { IAuthoredState } from "../../types";
+import { FirestoreStore } from "../../stores/firestore";
 
 const testQuestionContext = {
   type: "Embeddable::MultipleChoice",
