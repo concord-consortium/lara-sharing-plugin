@@ -2,6 +2,16 @@
 
 A LARA plugin that allows students to share work with each other.
 
+1. As a LARA Admin add a this Plugin to your LARA instances, using `LaraSharingPlugin`
+as the plugin's `Label`. Use the URL where the script is hosted.
+2. Add the plugin to your activity in the assessment block section.
+3. Authoring:  The only supported authoring field is `firebaseAppName` which you
+are discouraged from using. You can leave the authoring field completely blank
+in which case this plugin will correctly use the firebaseAppName `lara-sharing`
+which is correct.
+4. In the Portal you will have to manually create an instance of a `FirebaseApp`
+model with that name if it doesn't already exist.
+
 ## Development
 
 ### Initial steps
@@ -23,12 +33,10 @@ You *do not* need to build to deploy the code, that is automatic.  See more info
 
 ## Deployment
 
-*TODO* Set up Travis Deployment
-
 Production releases to S3 are based on the contents of the /dist folder and are built automatically by Travis
-for each branch pushed to GitHub and each merge into production.
+for each branch pushed to GitHub and each merge into master.
 
-Merges into production are deployed to http://lara-sharing-plugin.concord.org.
+Merges into master are deployed to http://lara-sharing-plugin.concord.org.
 
 Other branches are deployed to http://lara-sharing-plugin.concord.org/branch/<name>.
 

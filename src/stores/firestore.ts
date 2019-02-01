@@ -1,5 +1,5 @@
 import * as firebase from "firebase";
-// import "firebase/firebase-firestore";
+import { FirebaseConfig } from "../config/plugin-config";
 
 export interface SharedClassData {
   type: "demo" | "test" | "lara";
@@ -10,7 +10,10 @@ export interface SharedClassData {
   students: SharedStudentData[];
 }
 
-export interface SharedStudentFirestoreData {
+export type SharedStudentFirestoreData = SharedStudentFirestoreDataV1;
+
+export interface SharedStudentFirestoreDataV1 {
+  version?: 1;
   userId: string;
   iframeUrl: string;
 }
@@ -73,15 +76,7 @@ export class FirestoreStore {
     this.currentUser = null;
     this.userMap = {};
 
-    const config = {
-      apiKey: "AIzaSyCGQEmbWr4yP7ZBw-ZjmkfRU1lJNgKLikY",
-      authDomain: "share-plugin-dev.firebaseapp.com",
-      databaseURL: "https://share-plugin-dev.firebaseio.com",
-      projectId: "share-plugin-dev",
-      storageBucket: "share-plugin-dev.appspot.com",
-      messagingSenderId: "449409198581"
-    };
-    firebase.initializeApp(config);
+    firebase.initializeApp(FirebaseConfig);
 
     this.db = firebase.firestore();
     const settings = {
@@ -179,6 +174,7 @@ export class FirestoreStore {
     if (this.currentUser) {
       const { userId } = this.currentUser;
       const student: SharedStudentFirestoreData = {
+        version: 1,
         userId,
         iframeUrl
       };
