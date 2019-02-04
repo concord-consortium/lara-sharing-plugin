@@ -2,6 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import PluginApp from "./components/plugin-app";
 import PluginConfig from "./config/plugin-config";
+import { DefaultFirebaseAppName } from "./config/plugin-config";
 import { IAuthoredState } from "./types";
 import {IExternalScriptContext, ILara} from "./lara/interfaces";
 import { store } from "./stores/firestore";
@@ -11,8 +12,6 @@ import {
   getInteractiveState,
   getFireStoreParams
 } from "./lara/helper-functions";
-
-const DefaultFirebaseApp = "test-app";
 
 let PluginAPI: ILara;
 
@@ -40,7 +39,7 @@ export class LaraSharingPlugin {
     this.context = context;
     this.authoredState = getAuthoredState(context);
     Promise.all([
-      getFirebaseJWT(context, this.authoredState.firebaseAppName || DefaultFirebaseApp),
+      getFirebaseJWT(context, this.authoredState.firebaseAppName || DefaultFirebaseAppName),
       getClassInfo(context),
       getInteractiveState(context)
     ])

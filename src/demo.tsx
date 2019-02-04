@@ -2,7 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { IAuthoredState} from "./types";
-import InteractiveAndWrapper from "./components/interactive-and-wrapper";
+import InteractiveAndWrapper from "./components/authoring/interactive-and-wrapper";
 import { store } from "./stores/firestore";
 
 const authoredState: IAuthoredState = {
