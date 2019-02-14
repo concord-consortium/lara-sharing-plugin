@@ -2,7 +2,10 @@
 
 A LARA plugin that allows students to share work with each other.
 
-1. As a LARA Admin add a this Plugin to your LARA instances, using `LaraSharingPlugin`
+Link for how to add and author LARA Sharing Plugin on an interactive:  
+https://docs.google.com/document/d/1miUegNqEISfpm675uCSdDKxCKD16a9Kzw2-VKMvRGpA/edit?usp=sharing
+
+1. As a LARA Admin add this Plugin to your LARA instances, using `LaraSharingPlugin`
 as the plugin's `Label`. Use the URL where the script is hosted.
 2. Add the plugin to your activity in the assessment block section.
 3. Authoring:  The only supported authoring field is `firebaseAppName` which you
@@ -11,6 +14,20 @@ in which case this plugin will correctly use the firebaseAppName `lara-sharing`
 which is correct.
 4. In the Portal you will have to manually create an instance of a `FirebaseApp`
 model with that name if it doesn't already exist.
+
+### Basic Steps to setup LARA Sharing Plugin embedded with shareable interactive:
+
+#### Edit interactive
+
+1. URL: Use Sage Modeler or CODAP LARA sharing URL
+2. Save State: Must be selected for sharing interactive state with LARA
+3. Save interactive
+
+#### Edit Plugin Embeddable
+
+1. Plugin: Select LARA Sharing Plugin
+2. Wrapped Embeddable: Choose interactive for sharing.
+3. Author Data: Leave blank (Should be `{ }` by default)
 
 ## Development
 
@@ -65,3 +82,4 @@ Run `npm test` to run jest tests. Run `npm run test:full` to run jest and Cypres
 Teacher Edition Tips Plugin are Copyright 2018 (c) by the Concord Consortium and is distributed under the [MIT license](http://www.opensource.org/licenses/MIT).
 
 See `LICENSE` for the complete license text.
+
