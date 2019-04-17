@@ -3,12 +3,12 @@ import {
   SharingWrapper,
   ISharingWrapperProps
 } from "./sharing-wrapper";
-import { shallow, mount, render } from "enzyme";
-import { IAuthoredState } from "../types";
+import { render } from "enzyme";
 import { store } from "../stores/firestore";
 const testingText =  "Hello World!";
 
 const props: ISharingWrapperProps = {
+  getReportingUrl: () => new Promise<string>(resolve => resolve("https://concord.org")),
   authoredState: {
     textContent: testingText
   },
@@ -21,7 +21,11 @@ describe("Sharing Wrapper", () => {
     store.init({type: "test"})
     .then(() => {
       const wrapper = render(
-        <SharingWrapper authoredState={props.authoredState} store={props.store} />
+        <SharingWrapper
+          getReportingUrl={props.getReportingUrl}
+          authoredState={props.authoredState}
+          wrappedEmbeddableDiv={props.wrappedEmbeddableDiv}
+          store={props.store} />
       );
       expect(wrapper.find(".wrappedHeader .button").length).toBe(2);
     })

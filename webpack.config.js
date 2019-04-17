@@ -77,6 +77,11 @@ module.exports = (env, argv) => {
       new CopyWebpackPlugin([
         {from: 'src/public'}
       ])
-    ]
+    ],
+    externals: {
+      'react': 'React',
+      'react-dom': 'ReactDOM',
+      '@concord-consortium/lara-plugin-api': 'LARA_V3'
+    }
   };
 };

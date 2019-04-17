@@ -9,11 +9,11 @@ import ShareModal from "./share-modal";
 import ToggleButton from "./toggle-button";
 
 import { SharedClassData, FirestoreStore, FirestoreStoreCancelListener } from "../stores/firestore";
-import { getInteractiveState, getLaraReportingUrl } from "../lara/helper-functions";
 
 export interface ISharingWrapperProps {
+  getReportingUrl: () => Promise<string | null> | null;
   authoredState: IAuthoredState;
-  wrappedEmbeddableDiv?: HTMLDivElement;
+  wrappedEmbeddableDiv: HTMLElement | null;
   store: FirestoreStore;
 }
 
@@ -82,12 +82,11 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
   }
 
   private renderIcons() {
-    const { sharedClassData, clickToPlayShowing } = this.state;
+    const { sharedClassData } = this.state;
 
     if (sharedClassData) {
       const { currentUserIsShared: isShared } = sharedClassData;
       const headerClass = css.wrappedHeader;
-      const shareIconEnabled = !clickToPlayShowing;
       const shareIcon = isShared ? <ButtonUnShareIcon /> : <ButtonShareIcon />;
       const shareTip = isShared ? "Stop sharing" : "Share this";
       const viewTip = "View class work";
@@ -117,7 +116,8 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
     if (!sharedClassData) {
       return;
     }
-    const { type, interactiveStateUrl } = sharedClassData;
+    const { type } = sharedClassData;
+    const { getReportingUrl } = this.props;
 
     const toggleShare = (iframeUrl: string) => {
       const shared = this.props.store.toggleShare(iframeUrl);
@@ -128,16 +128,17 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
 
     if (type === "demo") {
       toggleShare("https://sagemodeler.concord.org/branch/use-codap-470/?launchFromLara=eyJyZWNvcmRpZCI6ODMwMTYsImFjY2Vzc0tleXMiOnsicmVhZE9ubHkiOiI5YTQzMjdhYmE0NGZlOTJlYzhiMDkxNWM0MjA1OWYwZGY1MThmMTdmIn19");
-    }
-    else if (interactiveStateUrl) {
-      getInteractiveState(interactiveStateUrl)
-        .then((interactiveState) => {
-          const iframeUrl = getLaraReportingUrl(interactiveState);
-          if (iframeUrl) {
-            toggleShare(iframeUrl);
-          }
-        })
-        .catch((err) => alert(err.toString()));
+    } else {
+      const reportingUrlPromise = getReportingUrl();
+      if (reportingUrlPromise) {
+        reportingUrlPromise
+          .then(reportingUrl => {
+            if (reportingUrl) {
+              toggleShare(reportingUrl);
+            }
+          })
+          .catch((err) => alert(err.toString()));
+      }
     }
   }
 

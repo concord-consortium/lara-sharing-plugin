@@ -5,7 +5,6 @@ export interface SharedClassData {
   type: "demo" | "test" | "lara";
   interactiveName: string;
   clickToPlayId: string | null;
-  interactiveStateUrl: string | null;
   currentUserIsShared: boolean;
   students: SharedStudentData[];
 }
@@ -46,7 +45,6 @@ export interface InitLaraFirestoreParams {
   userMap: SharedClassUserMap;
   interactiveName: string;
   clickToPlayId: string;
-  interactiveStateUrl: string;
 }
 
 export type InitFirestoreParams = InitDemoFirestoreParams | InitTestFirestoreParams | InitLaraFirestoreParams;
@@ -102,7 +100,6 @@ export class FirestoreStore {
         currentUserIsShared: false,
         interactiveName,
         clickToPlayId: null,
-        interactiveStateUrl: null,
         students: []
       };
 
@@ -136,7 +133,6 @@ export class FirestoreStore {
                 docRef: pluginData.doc(userId),
               };
               classData.clickToPlayId = params.clickToPlayId;
-              classData.interactiveStateUrl = params.interactiveStateUrl;
               this.listenForChanges(pluginData).then(resolve).catch(reject);
             })
             .catch(reject);

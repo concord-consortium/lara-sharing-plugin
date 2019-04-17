@@ -5,10 +5,6 @@ import { ISharingWrapperProps, SharingWrapper } from "../sharing-wrapper";
 import { IAuthoredState } from "../../types";
 import { FirestoreStore } from "../../stores/firestore";
 
-const testQuestionContext = {
-  type: "Embeddable::MultipleChoice",
-};
-
 interface IProps {
   authoredState: IAuthoredState;
   updateFunction?: (nextState: ISharingWrapperProps) => void;
@@ -31,8 +27,10 @@ export default class InteractiveAndWrapper extends React.Component<IProps, IStat
 
   public render() {
     const {authoredState} = this.props;
+    const getReportingUrl = () => new Promise<string>(resolve => resolve("https://concord.org"));
     return (
       <SharingWrapper
+        getReportingUrl={getReportingUrl}
         authoredState={authoredState}
         wrappedEmbeddableDiv={this.domRef}
         store={this.props.store}
