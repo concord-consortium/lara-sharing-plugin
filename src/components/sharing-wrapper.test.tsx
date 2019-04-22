@@ -8,7 +8,6 @@ import { store } from "../stores/firestore";
 const testingText =  "Hello World!";
 
 const props: ISharingWrapperProps = {
-  getReportingUrl: () => new Promise<string>(resolve => resolve("https://concord.org")),
   authoredState: {
     textContent: testingText
   },
@@ -22,7 +21,6 @@ describe("Sharing Wrapper", () => {
     .then(() => {
       const wrapper = render(
         <SharingWrapper
-          getReportingUrl={props.getReportingUrl}
           authoredState={props.authoredState}
           wrappedEmbeddableDiv={props.wrappedEmbeddableDiv}
           store={props.store} />

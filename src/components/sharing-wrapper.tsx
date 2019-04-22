@@ -11,7 +11,6 @@ import ToggleButton from "./toggle-button";
 import { SharedClassData, FirestoreStore, FirestoreStoreCancelListener } from "../stores/firestore";
 
 export interface ISharingWrapperProps {
-  getReportingUrl: () => Promise<string | null> | null;
   authoredState: IAuthoredState;
   wrappedEmbeddableDiv: HTMLElement | null;
   store: FirestoreStore;
@@ -117,7 +116,7 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
       return;
     }
     const { type } = sharedClassData;
-    const { getReportingUrl } = this.props;
+    const { getReportingUrl } = this.props.store;
 
     const toggleShare = (iframeUrl: string) => {
       const shared = this.props.store.toggleShare(iframeUrl);

@@ -60,7 +60,7 @@
   "bugs": {
     "url": "https://github.com/concord-consortium/teacher-edition-tips-plugin/issues"
   },
-  "homepage": "https://github.com/concord-consortium/teacher-edition-tips-plugin#readme",
+  "homepage": "https://github.com/concord-consortium/lara/tree/master/docs/lara-plugin-api",
   "peerDependencies": {
     "react": "^16.6.0",
     "react-dom": "^16.6.0"

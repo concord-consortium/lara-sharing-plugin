@@ -39,6 +39,8 @@ export const getFireStoreParams = (
     const interactiveName = interactiveState.interactive_name;
     const classHash = classInfo.class_hash;
     const clickToPlayId = context.wrappedEmbeddable && context.wrappedEmbeddable.clickToPlayId || "";
+    const getReportingUrl = context.wrappedEmbeddable ? context.wrappedEmbeddable.getReportingUrl : () => new Promise<null>(resolve => resolve(null));
+    // ADD
     classInfo.students.forEach( (student) => {
       const key = portalUserPathToFirebaseId(student.id);
       const value = studentValue(student);
@@ -54,7 +56,8 @@ export const getFireStoreParams = (
       userMap,
       interactiveName,
       classHash,
-      clickToPlayId
+      clickToPlayId,
+      getReportingUrl
     };
     return params;
 };

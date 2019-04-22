@@ -64,7 +64,6 @@ export class LaraSharingPlugin {
     const authoredState = getAuthoredState(this.context);
     this.pluginAppComponent = ReactDOM.render(
       <PluginApp
-        getReportingUrl={this.context.wrappedEmbeddable!.getReportingUrl}
         authoredState={authoredState}
         wrappedEmbeddableDiv={this.context.wrappedEmbeddable && this.context.wrappedEmbeddable.container}
         store={store}

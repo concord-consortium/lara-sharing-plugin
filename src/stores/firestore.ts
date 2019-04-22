@@ -45,6 +45,7 @@ export interface InitLaraFirestoreParams {
   userMap: SharedClassUserMap;
   interactiveName: string;
   clickToPlayId: string;
+  getReportingUrl: () => Promise<string | null> | null;
 }
 
 export type InitFirestoreParams = InitDemoFirestoreParams | InitTestFirestoreParams | InitLaraFirestoreParams;
@@ -60,6 +61,7 @@ export type FirestoreStoreCancelListener = () => void;
 
 export class FirestoreStore {
   public readonly type: "demo" | "test" | "lara";
+  public readonly getReportingUrl: () => Promise<string | null> | null;
   private initialized: boolean;
   private listeners: FirestoreStoreListener[];
   private db: firebase.firestore.Firestore;
