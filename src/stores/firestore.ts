@@ -1,10 +1,11 @@
 import * as firebase from "firebase";
 import { FirebaseConfig } from "../config/plugin-config";
+import * as PluginAPI from "@concord-consortium/lara-plugin-api";
+import { IInteractiveAvailableEvent } from "@concord-consortium/lara-plugin-api";
 
 export interface SharedClassData {
   type: "demo" | "test" | "lara";
   interactiveName: string;
-  clickToPlayId: string | null;
   currentUserIsShared: boolean;
   students: SharedStudentData[];
 }
@@ -44,7 +45,8 @@ export interface InitLaraFirestoreParams {
   portalUserId: string;
   userMap: SharedClassUserMap;
   interactiveName: string;
-  clickToPlayId: string;
+  interactiveAvailable: boolean;
+  onInteractiveAvailable: (handler: PluginAPI.IInteractiveAvailableEventHandler) => void;
   getReportingUrl: () => Promise<string | null> | null;
 }
 
@@ -59,15 +61,19 @@ interface CurrentUserInfo {
 export type FirestoreStoreListener = (sharedClassData: SharedClassData | null) => void;
 export type FirestoreStoreCancelListener = () => void;
 
+export type InteractiveAvailableListener = (available: boolean) => void;
+
 export class FirestoreStore {
   public readonly type: "demo" | "test" | "lara";
-  public readonly getReportingUrl: () => Promise<string | null> | null;
+  public interactiveAvailable: boolean = true;
+  public getReportingUrl: () => Promise<string | null> | null;
   private initialized: boolean;
   private listeners: FirestoreStoreListener[];
   private db: firebase.firestore.Firestore;
   private classData: SharedClassData | null;
   private currentUser: CurrentUserInfo | null;
   private userMap: SharedClassUserMap;
+  private interactiveAvailableListeners: InteractiveAvailableListener[];
 
   constructor() {
     this.initialized = false;
@@ -75,6 +81,7 @@ export class FirestoreStore {
     this.classData = null;
     this.currentUser = null;
     this.userMap = {};
+    this.interactiveAvailableListeners = [];
 
     firebase.initializeApp(FirebaseConfig);
 
@@ -101,7 +108,6 @@ export class FirestoreStore {
         type: params.type,
         currentUserIsShared: false,
         interactiveName,
-        clickToPlayId: null,
         students: []
       };
 
@@ -122,6 +128,11 @@ export class FirestoreStore {
           break;
 
         case "lara":
+          this.getReportingUrl = params.getReportingUrl;
+
+          this.interactiveAvailable = params.interactiveAvailable;
+          params.onInteractiveAvailable(this.handleInteractiveAvailable);
+
           this.login(params.rawFirebaseJWT)
             .then(() => {
               this.userMap = params.userMap;
@@ -134,7 +145,6 @@ export class FirestoreStore {
                 displayName: params.userMap[userId] || "Unknown User",
                 docRef: pluginData.doc(userId),
               };
-              classData.clickToPlayId = params.clickToPlayId;
               this.listenForChanges(pluginData).then(resolve).catch(reject);
             })
             .catch(reject);
@@ -185,6 +195,10 @@ export class FirestoreStore {
     if (this.currentUser) {
       return this.currentUser.docRef.delete();
     }
+  }
+
+  public listenForInteractiveAvailable(listener: InteractiveAvailableListener) {
+    this.interactiveAvailableListeners.push(listener);
   }
 
   private ensureInitalized() {
@@ -289,6 +303,14 @@ export class FirestoreStore {
 
     return studentDemoData;
   }
+
+  private handleInteractiveAvailable = (event: IInteractiveAvailableEvent) => {
+    this.interactiveAvailable = event.available;
+    this.interactiveAvailableListeners.forEach((listener) => {
+      listener(this.interactiveAvailable);
+    });
+  }
+
 }
 
 export const store = new FirestoreStore();

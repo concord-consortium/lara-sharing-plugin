@@ -8,7 +8,8 @@ import ViewClass from "./view-class";
 import ShareModal from "./share-modal";
 import ToggleButton from "./toggle-button";
 
-import { SharedClassData, FirestoreStore, FirestoreStoreCancelListener } from "../stores/firestore";
+import { SharedClassData, FirestoreStore, FirestoreStoreCancelListener,  } from "../stores/firestore";
+import { IInteractiveAvailableEvent } from "@concord-consortium/lara-plugin-api";
 
 export interface ISharingWrapperProps {
   authoredState: IAuthoredState;
@@ -21,7 +22,7 @@ interface IState {
   showShareModal: boolean;
   dontShowShareModal: boolean;
   sharedClassData: SharedClassData | null;
-  clickToPlayShowing: boolean;
+  interactiveAvailable: boolean;
 }
 
 export class SharingWrapper extends React.Component<ISharingWrapperProps, IState> {
@@ -30,26 +31,19 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
     showShareModal: false,
     dontShowShareModal: false,
     sharedClassData: null,
-    clickToPlayShowing: false
+    interactiveAvailable: false
   };
 
   private cancelListener: FirestoreStoreCancelListener;
   private wrappedEmbeddableDivContainer = React.createRef<HTMLDivElement>();
-  private monitorClickToPlayInterval: number | null;
 
   public componentWillMount() {
     this.cancelListener = this.props.store.listen((sharedClassData) => {
-      if (sharedClassData && sharedClassData.clickToPlayId && !this.monitorClickToPlayInterval) {
-        const { clickToPlayId } = sharedClassData;
-        const clickToPlayShowing = this.clickToPlayShowing(clickToPlayId);
-        this.setState({sharedClassData, clickToPlayShowing}, () => {
-          this.monitorClickToPlayInterval = this.monitorClickToPlay(clickToPlayId);
-        });
-      }
-      else {
-        this.setState({sharedClassData});
-      }
+      this.setState({sharedClassData});
     });
+
+    this.handleInteractiveAvailable(this.props.store.interactiveAvailable);
+    this.props.store.listenForInteractiveAvailable(this.handleInteractiveAvailable);
   }
 
   public componentWillUnmount() {
@@ -81,26 +75,26 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
   }
 
   private renderIcons() {
-    const { sharedClassData } = this.state;
+    const { sharedClassData, interactiveAvailable } = this.state;
 
     if (sharedClassData) {
-      const { currentUserIsShared: isShared } = sharedClassData;
+      const { currentUserIsShared } = sharedClassData;
       const headerClass = css.wrappedHeader;
-      const shareIcon = isShared ? <ButtonUnShareIcon /> : <ButtonShareIcon />;
-      const shareTip = isShared ? "Stop sharing" : "Share this";
+      const shareIcon = currentUserIsShared ? <ButtonUnShareIcon /> : <ButtonShareIcon />;
+      const shareTip = currentUserIsShared ? "Stop sharing" : "Share this";
       const viewTip = "View class work";
       return (
         <div className={headerClass}>
           <ToggleButton
             onClick={this.toggleShared}
-            enabled={true}
+            enabled={interactiveAvailable}
             tip={shareTip}
           >
             {shareIcon}
           </ToggleButton>
           <ToggleButton
             onClick={this.toggleShowView}
-            enabled={isShared}
+            enabled={interactiveAvailable && currentUserIsShared}
             tip={viewTip}
           >
             <ViewClassIcon/>
@@ -154,31 +148,12 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
     this.setState({showShareModal: false, dontShowShareModal: dontShowAgain});
   }
 
+  private handleInteractiveAvailable = (interactiveAvailable: boolean) => {
+    this.setState({interactiveAvailable});
+  }
+
   private elementVisible(element: HTMLElement) {
     return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
-  }
-
-  private clickToPlayShowing(clickToPlayId: string) {
-    const element = document.getElementById(clickToPlayId);
-    return element ? this.elementVisible(element) : false;
-  }
-
-  private monitorClickToPlay(clickToPlayId: string) {
-    const element = document.getElementById(clickToPlayId);
-    if (!element) {
-      return null;
-    }
-
-    const checkIfClickToPlayIsVisible = () => {
-      const {clickToPlayShowing} = this.state;
-      const clickToPlayNowShowing = this.elementVisible(element);
-      if (clickToPlayShowing !== clickToPlayNowShowing) {
-        this.setState({clickToPlayShowing: clickToPlayNowShowing});
-      }
-    };
-    checkIfClickToPlayIsVisible();
-
-    return setInterval(checkIfClickToPlayIsVisible, 250);
   }
 }
 export default SharingWrapper;

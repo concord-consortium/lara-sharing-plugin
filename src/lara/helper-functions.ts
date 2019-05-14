@@ -38,7 +38,10 @@ export const getFireStoreParams = (
     const userMap: SharedClassUserMap = {};
     const interactiveName = interactiveState.interactive_name;
     const classHash = classInfo.class_hash;
-    const clickToPlayId = context.wrappedEmbeddable && context.wrappedEmbeddable.clickToPlayId || "";
+    const interactiveAvailable = context.wrappedEmbeddable ? context.wrappedEmbeddable.interactiveAvailable : true;
+    // tslint:disable-next-line:no-empty
+    const onInteractiveAvailableFillIn = (handler: PluginAPI.IInteractiveAvailableEventHandler) => {};
+    const onInteractiveAvailable = context.wrappedEmbeddable ? context.wrappedEmbeddable.onInteractiveAvailable : onInteractiveAvailableFillIn;
     const getReportingUrl = context.wrappedEmbeddable ? context.wrappedEmbeddable.getReportingUrl : () => new Promise<null>(resolve => resolve(null));
     // ADD
     classInfo.students.forEach( (student) => {
@@ -56,7 +59,8 @@ export const getFireStoreParams = (
       userMap,
       interactiveName,
       classHash,
-      clickToPlayId,
+      onInteractiveAvailable,
+      interactiveAvailable,
       getReportingUrl
     };
     return params;
