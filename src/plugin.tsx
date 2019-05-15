@@ -4,18 +4,13 @@ import PluginApp from "./components/plugin-app";
 import PluginConfig from "./config/plugin-config";
 import { DefaultFirebaseAppName } from "./config/plugin-config";
 import { IAuthoredState } from "./types";
-import {IExternalScriptContext, ILara} from "./lara/interfaces";
 import { store } from "./stores/firestore";
 import {
-  getFirebaseJWT,
-  getClassInfo,
-  getInteractiveState,
   getFireStoreParams
 } from "./lara/helper-functions";
+import * as PluginAPI from "@concord-consortium/lara-plugin-api";
 
-let PluginAPI: ILara;
-
-const getAuthoredState = (context: IExternalScriptContext) => {
+const getAuthoredState = (context: PluginAPI.IPluginRuntimeContext) => {
   if (!context.authoredState) {
     return {};
   }
@@ -31,44 +26,53 @@ const getAuthoredState = (context: IExternalScriptContext) => {
 };
 
 export class LaraSharingPlugin {
-  public context: IExternalScriptContext;
+  public context: PluginAPI.IPluginRuntimeContext;
   public authoredState: IAuthoredState;
   public pluginAppComponent: any;
 
-  constructor(context: IExternalScriptContext) {
+  constructor(context: PluginAPI.IPluginRuntimeContext) {
+    const errMsg = "Plugin context is incorrect, the plugin instance has been configured incorrectly.";
+    if (!context.wrappedEmbeddable) {
+      // tslint:disable-next-line:no-console
+      console.error(errMsg);
+      return;
+    }
+
     this.context = context;
     this.authoredState = getAuthoredState(context);
-    Promise.all([
-      getFirebaseJWT(context, this.authoredState.firebaseAppName || DefaultFirebaseAppName),
-      getClassInfo(context),
-      getInteractiveState(context)
-    ])
-    .then( ([jwtResponse, classInfo, interactiveState]) => {
-      const config = getFireStoreParams(context, jwtResponse, classInfo, interactiveState);
+
+    const firebasePromise = context.getFirebaseJwt(this.authoredState.firebaseAppName || DefaultFirebaseAppName);
+    const classInfoPromise = context.getClassInfo();
+    const interactiveStatePromise = context.wrappedEmbeddable.getInteractiveState();
+    if (firebasePromise && classInfoPromise && interactiveStatePromise) {
+      Promise.all([ firebasePromise, classInfoPromise, interactiveStatePromise])
+      .then( ([jwtResponse, classInfo, interactiveState]) => {
+        const config = getFireStoreParams(context, jwtResponse, classInfo, interactiveState);
+        // tslint:disable-next-line:no-console
+        console.log(config);
+        store.init(config)
+          .then(() => this.renderPluginApp())
+          .catch((err) => alert(err.toString()));
+      });
+    } else {
       // tslint:disable-next-line:no-console
-      console.log(config);
-      store.init(config)
-        .then(() => this.renderPluginApp())
-        .catch((err) => alert(err.toString()));
-    });
+      console.error(errMsg);
+    }
   }
 
   public renderPluginApp = () => {
-    PluginAPI = (window as any).LARA;
     const authoredState = getAuthoredState(this.context);
     this.pluginAppComponent = ReactDOM.render(
       <PluginApp
         authoredState={authoredState}
-        wrappedEmbeddableDiv={this.context.wrappedEmbeddableDiv}
-        PluginAPI={PluginAPI}
+        wrappedEmbeddableDiv={this.context.wrappedEmbeddable && this.context.wrappedEmbeddable.container}
         store={store}
       />,
-      this.context.div);
+      this.context.container);
   }
 }
 
 export const initPlugin = () => {
-  PluginAPI = (window as any).LARA;
   const {PluginID, PluginName} = PluginConfig;
   if (!PluginAPI || !PluginAPI.registerPlugin) {
     // tslint:disable-next-line:no-console

@@ -5,10 +5,6 @@ import { ISharingWrapperProps, SharingWrapper } from "../sharing-wrapper";
 import { IAuthoredState } from "../../types";
 import { FirestoreStore } from "../../stores/firestore";
 
-const testQuestionContext = {
-  type: "Embeddable::MultipleChoice",
-};
-
 interface IProps {
   authoredState: IAuthoredState;
   updateFunction?: (nextState: ISharingWrapperProps) => void;

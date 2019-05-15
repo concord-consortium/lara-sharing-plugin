@@ -1,13 +1,11 @@
 import * as React from "react";
-import * as ReactDOM from "react-dom";
 import SharingWrapper from "./sharing-wrapper";
 import { IAuthoredState } from "../types";
 import { FirestoreStore } from "../stores/firestore";
 
 interface IProps {
-  PluginAPI: any;
   authoredState: IAuthoredState;
-  wrappedEmbeddableDiv?: HTMLDivElement;
+  wrappedEmbeddableDiv: HTMLElement | null;
   wrappedEmbeddableContext?: object;
   store: FirestoreStore;
 }
