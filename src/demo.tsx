@@ -6,7 +6,6 @@ import InteractiveAndWrapper from "./components/authoring/interactive-and-wrappe
 import { store } from "./stores/firestore";
 
 const authoredState: IAuthoredState = {
-  textContent: "Sharing"
 };
 
 store.init({type: "demo"})

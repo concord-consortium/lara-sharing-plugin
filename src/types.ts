@@ -3,6 +3,5 @@
  * which is saved as the plugin author state in LARA:
  */
 export interface IAuthoredState {
-  textContent: string;
   firebaseAppName?: string;
 }

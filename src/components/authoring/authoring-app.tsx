@@ -9,7 +9,6 @@ import PluginComponent from "./interactive-and-wrapper";
 import { store } from "../../stores/firestore";
 
 const defaultProps: IAuthoredState = {
-  textContent: "Hello There!"
 };
 
 const portalDom = document.createElement("div");
@@ -33,7 +32,6 @@ export default class AuthoringApp extends React.Component<IProps, IState> {
 
   public render() {
     const { authoredState } = this.state;
-    const { textContent } = authoredState;
     return (
       <div className={css.container}>
         <div className={css.preview}>
