@@ -9,8 +9,10 @@ import {
   getFireStoreParams
 } from "./lara/helper-functions";
 import * as PluginAPI from "@concord-consortium/lara-plugin-api";
+import InlineAuthoringForm from "./components/authoring/inline-authoring-form";
 
-const getAuthoredState = (context: PluginAPI.IPluginRuntimeContext) => {
+type IPluginContext = PluginAPI.IPluginRuntimeContext | PluginAPI.IPluginAuthoringContext;
+const getAuthoredState = (context: IPluginContext): IAuthoredState => {
   if (!context.authoredState) {
     return {};
   }
@@ -72,6 +74,29 @@ export class LaraSharingPlugin {
   }
 }
 
+export class LaraSharingAuthoringPlugin {
+  public context: PluginAPI.IPluginAuthoringContext;
+  public authoredState: IAuthoredState;
+  public pluginAppComponent: any;
+  private currentFirebaseAppName?: string;
+
+  constructor(context: PluginAPI.IPluginAuthoringContext) {
+    this.context = context;
+    this.renderPluginApp();
+  }
+
+  public renderPluginApp = () => {
+    const authoredState = getAuthoredState(this.context);
+    const { saveAuthoredPluginState } = this.context;
+    this.pluginAppComponent = ReactDOM.render(
+      <InlineAuthoringForm
+        initialAuthoredState={authoredState}
+        saveAuthoredPluginState={saveAuthoredPluginState}
+      />,
+      this.context.container);
+  }
+}
+
 export const initPlugin = () => {
   const {PluginID, PluginName} = PluginConfig;
   if (!PluginAPI || !PluginAPI.registerPlugin) {
@@ -81,7 +106,10 @@ export const initPlugin = () => {
   }
   // tslint:disable-next-line:no-console
   console.log(`LARA Plugin API available, ${PluginName} initialization`);
-  PluginAPI.registerPlugin(PluginID, LaraSharingPlugin);
+  PluginAPI.registerPlugin({
+    runtimeClass: LaraSharingPlugin,
+    authoringClass: LaraSharingAuthoringPlugin
+  });
 };
 
 initPlugin();
