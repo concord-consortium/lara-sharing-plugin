@@ -10,6 +10,7 @@
         "label": "interactives",
         "name": "Interactives",
         "scope": "embeddable-decoration",
+        "guiAuthoring": true,
         "decorates": [
           "MwInteractive"
         ]
