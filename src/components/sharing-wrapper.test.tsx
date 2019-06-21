@@ -9,7 +9,6 @@ const testingText =  "Hello World!";
 
 const props: ISharingWrapperProps = {
   authoredState: {
-    textContent: testingText
   },
   wrappedEmbeddableDiv: document.createElement("div"),
   store
