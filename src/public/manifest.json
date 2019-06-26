@@ -1,7 +1,7 @@
 {
   "name": "Sharing",
   "label": "laraSharing",
-  "url": "http://lara-sharing-plugin.concord.org/version/v3.1.0/plugin.js",
+  "url": "plugin.js",
   "version": 3,
   "description": "This plugin provides the sharing component",
   "authoring_metadata": {
