@@ -9,7 +9,6 @@ import ShareModal from "./share-modal";
 import ToggleButton from "./toggle-button";
 
 import { SharedClassData, FirestoreStore, FirestoreStoreCancelListener,  } from "../stores/firestore";
-import { IInteractiveAvailableEvent } from "@concord-consortium/lara-plugin-api";
 
 export interface ISharingWrapperProps {
   authoredState: IAuthoredState;
@@ -23,6 +22,7 @@ interface IState {
   dontShowShareModal: boolean;
   sharedClassData: SharedClassData | null;
   interactiveAvailable: boolean;
+  interactiveWidth: string;
 }
 
 export class SharingWrapper extends React.Component<ISharingWrapperProps, IState> {
@@ -31,7 +31,8 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
     showShareModal: false,
     dontShowShareModal: false,
     sharedClassData: null,
-    interactiveAvailable: false
+    interactiveAvailable: false,
+    interactiveWidth: "100%"
   };
 
   private cancelListener: FirestoreStoreCancelListener;
@@ -50,6 +51,28 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
     this.cancelListener();
   }
 
+  public observeWrappedInteractiveSize() {
+    const { wrappedEmbeddableDiv } = this.props;
+    if (!wrappedEmbeddableDiv) {
+      return;
+    }
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(mutation => {
+        if (mutation.attributeName === "style" && wrappedEmbeddableDiv.style.width) {
+          this.setState({
+            interactiveWidth: wrappedEmbeddableDiv.style.width.toString()
+          });
+        }
+      });
+    });
+    const observerConfig = {
+      attributes: true,
+      attributeFilter: ["style"]
+    };
+    observer.observe(wrappedEmbeddableDiv, observerConfig);
+  }
+
   public componentDidMount() {
     const { wrappedEmbeddableDiv } = this.props;
     if (!wrappedEmbeddableDiv) {
@@ -57,11 +80,13 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
     }
     const containerNode = this.wrappedEmbeddableDivContainer.current!;
     containerNode.appendChild(wrappedEmbeddableDiv);
+
+    this.observeWrappedInteractiveSize();
   }
 
   public render() {
     const { store } = this.props;
-    const { showShareModal, showViewClass, sharedClassData} = this.state;
+    const { showShareModal, showViewClass, sharedClassData } = this.state;
 
     const wrapperClass = css.wrapper;
     return (
@@ -75,7 +100,7 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
   }
 
   private renderIcons() {
-    const { sharedClassData, interactiveAvailable } = this.state;
+    const { sharedClassData, interactiveAvailable, interactiveWidth } = this.state;
 
     if (sharedClassData) {
       const { currentUserIsShared } = sharedClassData;
@@ -84,7 +109,7 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
       const shareTip = currentUserIsShared ? "Stop sharing" : "Share this";
       const viewTip = "View class work";
       return (
-        <div className={headerClass}>
+        <div className={headerClass} style={{width: interactiveWidth}}>
           <ToggleButton
             onClick={this.toggleShared}
             enabled={interactiveAvailable}
