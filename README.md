@@ -2,6 +2,8 @@
 
 A LARA plugin that allows students to share work with each other.
 
+**NOTE: this currently only works with CODAP interactives that have scaling enabled**
+
 Link for how to add and author LARA Sharing Plugin on an interactive:  
 https://docs.google.com/document/d/1miUegNqEISfpm675uCSdDKxCKD16a9Kzw2-VKMvRGpA/edit?usp=sharing
 
