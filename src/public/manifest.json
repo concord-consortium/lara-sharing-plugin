@@ -12,7 +12,7 @@
         "scope": "embeddable-decoration",
         "guiAuthoring": true,
         "decorates": [
-          "MwInteractive"
+          "MwInteractive", "ManagedInteractive"
         ]
       }
     ]
