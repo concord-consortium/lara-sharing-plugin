@@ -1,6 +1,6 @@
 {
   "name": "lara-sharing-plugin",
-  "version": "0.0.1",
+  "version": "3.1.3",
   "description": "Concord Consortium LARA Sharing Plugin",
   "main": "index.js",
   "jest": {
