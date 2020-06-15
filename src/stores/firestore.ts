@@ -1,4 +1,6 @@
 import * as firebase from "firebase";
+import "firebase/firestore";
+import "firebase/auth";
 import { FirebaseConfig } from "../config/plugin-config";
 import * as PluginAPI from "@concord-consortium/lara-plugin-api";
 import { IInteractiveAvailableEvent } from "@concord-consortium/lara-plugin-api";
@@ -86,9 +88,7 @@ export class FirestoreStore {
     firebase.initializeApp(FirebaseConfig);
 
     this.db = firebase.firestore();
-    const settings = {
-      timestampsInSnapshots: true
-    };
+    const settings = {};
     this.db.settings(settings);
   }
 

@@ -6,7 +6,7 @@ interface IToggleButtonProps {
   onClick: (() => void) | undefined;
   enabled: boolean;
   tip: string;
-  children: Array<string |  JSX.Element> | JSX.Element | undefined;
+  children: string[] | JSX.Element[] | JSX.Element | undefined;
 }
 
 const ToggleButton = (props: IToggleButtonProps) => {
