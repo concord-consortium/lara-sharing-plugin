@@ -1,0 +1,27 @@
+@import "../vars"
+
+.leftNav
+  position: absolute
+  top: $class-work-title-bar-height + $border-width
+  left: 0
+  bottom: 0
+  width: $class-work-left-nav-width
+  background-color: #dae6f3
+  border-right: 1px solid #000
+  border-radius: 0 0 0 $border-radius
+  user-select: none
+  overflow: auto
+
+  .leftNavContents
+    padding: 20px
+
+    ul
+      margin: 0
+      padding: 0
+      list-style: none
+      font-size: 1.1em
+
+      .selected
+        font-weight: bold
+      li:hover
+        text-decoration: underline
