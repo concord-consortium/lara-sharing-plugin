@@ -116,7 +116,7 @@
   },
   "dependencies": {
     "@concord-consortium/lara-plugin-api": "^3.0.0-pre.18",
-    "firebase": "^7.14.3",
+    "firebase": "^8.2.9",
     "markdown-to-jsx": "^6.8.3",
     "query-string": "^6.2.0",
     "react-tooltip": "^3.9.2",
