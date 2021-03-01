@@ -1,5 +1,6 @@
 import * as React from "react";
 import { SharedClassData, SharedStudentData } from "../../stores/firestore";
+import { SplitPane } from "../split-pane";
 import * as css from "./left-nav.sass";
 
 export interface ILeftNavProps {
@@ -18,22 +19,27 @@ export const LeftNav = (props: ILeftNavProps) => {
 
   return (
     <div className={css.leftNav}>
-      <div className={css.leftNavContents}>
-        <ul>
-          {sharedClassData.students.map((student) => {
-            const className = student === selectedStudent ? css.selected : "";
-            return (
-              <li
-                key={student.userId}
-                className={className}
-                onClick={handleSelectStudent(student)}
-              >
-                {student.displayName}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+      <SplitPane>
+        <div className={css.leftNavContents}>
+          <ul>
+            {sharedClassData.students.map((student) => {
+              const className = student === selectedStudent ? css.selected : "";
+              return (
+                <li
+                  key={student.userId}
+                  className={className}
+                  onClick={handleSelectStudent(student)}
+                >
+                  {student.displayName}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        <div>
+          (Bottom panel)
+        </div>
+      </SplitPane>
     </div>
   )
 }
