@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 23.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Close_button" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
-	 y="0px" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve">
-<path d="M36.3,25l13.1-13.1c0.8-0.8,0.8-2.2,0-3l-8.3-8.3c-0.8-0.8-2.2-0.8-3,0L25,13.7L11.9,0.6c-0.8-0.8-2.2-0.8-3,0L0.6,8.9
-	c-0.8,0.8-0.8,2.2,0,3L13.7,25L0.6,38.1c-0.8,0.8-0.8,2.2,0,3l8.3,8.3c0.8,0.8,2.2,0.8,3,0L25,36.3l13.1,13.1c0.8,0.8,2.2,0.8,3,0
-	l8.3-8.3c0.8-0.8,0.8-2.2,0-3L36.3,25z"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+    <g fill="none" fill-rule="evenodd">
+        <g>
+            <g>
+                <path d="M0 0L32 0 32 32 0 32z" transform="translate(-978 -14) translate(978 14)"/>
+                <path d="M16 2C8.258 2 2 8.258 2 16s6.258 14 14 14 14-6.258 14-14S23.742 2 16 2z" transform="translate(-978 -14) translate(978 14)"/>
+                <path fill="#0592AF" d="M23 21.026L21.026 23 16 17.974 10.974 23 9 21.026 14.026 16 9 10.974 10.974 9 16 14.026 21.026 9 23 10.974 17.974 16z" transform="translate(-978 -14) translate(978 14)"/>
+            </g>
+        </g>
+    </g>
 </svg>

@@ -20,23 +20,25 @@ export const LeftNav = (props: ILeftNavProps) => {
   return (
     <div className={css.leftNav}>
       <SplitPane>
-        <div className={css.leftNavContents}>
-          <ul>
+        <div className={`${css.leftNavContents} ${css.top}`}>
+          <div className={css.students}>
             {sharedClassData.students.map((student) => {
               const className = student === selectedStudent ? css.selected : "";
               return (
-                <li
+                <div className={className}
                   key={student.userId}
-                  className={className}
                   onClick={handleSelectStudent(student)}
                 >
-                  {student.displayName}
-                </li>
+                  <div className={css.studentIcon} />
+                  <div className={css.student}>
+                    {student.displayName}
+                  </div>
+                </div>
               );
             })}
-          </ul>
+          </div>
         </div>
-        <div>
+        <div className={`${css.leftNavContents} ${css.bottom}`}>
           (Bottom panel)
         </div>
       </SplitPane>

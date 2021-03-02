@@ -15,15 +15,15 @@ $titleBarHeight: 30px
   z-index: 1
 
   .dialog
-    background-color: #cfe2f3
+    background-color: $cc-teal-light-7
     border: 1px solid #000
     border-radius: $border-radius
     width: 400px
 
   .titleBar
     height: $titleBarHeight
-    background-color: #9fc5e8
-    border-bottom: 1px solid #000
+    background-color: $cc-teal-light-5
+    border-bottom: 1px solid $cc-teal
     border-radius: $border-radius $border-radius 0 0
     user-select: none
 
@@ -46,6 +46,9 @@ $titleBarHeight: 30px
         flex-grow: 0
         fill: #fff
         font-weight: bold
+        &.icon
+          width: 32px
+          margin: 0
 
       .icon
         background-color: transparent

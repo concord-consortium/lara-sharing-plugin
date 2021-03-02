@@ -13,15 +13,29 @@
   overflow: auto
 
   .leftNavContents
-    padding: 20px
+    height: 100%
 
-    ul
-      margin: 0
-      padding: 0
-      list-style: none
-      font-size: 1.1em
+  .top
 
-      .selected
-        font-weight: bold
-      li:hover
-        text-decoration: underline
+    .students
+      display: flex
+      flex-direction: column
+      color: $cc-charcoal
+      background-color: $cc-teal-light-7
+
+      >div
+        display: flex
+        padding: 6px 0
+
+        &:hover
+          background-color: $cc-teal-light-6
+
+        &.selected, &.selected:hover
+          font-weight: bold
+          background-color: $cc-teal-light-4
+
+        .studentIcon
+          width: 32px
+
+  .bottom
+    background-color: white

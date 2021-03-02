@@ -38,7 +38,7 @@ export class ViewClass extends React.Component<IViewClassProps, IState> {
           <div className={css.titleBarContents}>
             <ViewSharedIcon className={`${css.left} ${css.icon}`} />
             <div className={css.center}>
-              <strong>View Shared Classwork{haveInteractiveName ? ": " : ""}</strong>
+              View Shared Classwork{haveInteractiveName ? ": " : ""}
               {interactiveName}
             </div>
             <CloseIcon className={`${css.right} ${css.icon}`}  onClick={this.props.onClose} />
