@@ -47,3 +47,46 @@
 
   .bottom
     background-color: white
+    min-height: 260px
+
+    .comment
+      position: absolute
+      width: 210px
+      left: 15px
+      bottom: 45px
+      height: 75px
+      padding: 7px
+      box-sizing: border-box
+      border-radius: $border-radius
+      font-family: "Lato", arial, sans-serif
+
+    .submitButton
+      position: absolute
+      display: flex
+      justify-content: center
+      align-items: center
+      width: 143px
+      height: 30px
+      left: 82px
+      bottom: 10px
+      box-sizing: border-box
+      color: $cc-charcoal
+      background-color: $cc-teal-light-6
+      border: 1.5px solid $cc-charcoal-light-1
+      border-radius: $button-radius
+
+      svg
+        margin-right: 5px
+      >div
+        margin-top: -2px
+        font-family: "Lato", arial, sans-serif
+        font-size: 16px
+        font-weight: bold
+
+      &:hover
+        background-color: $cc-teal-light-4
+      &:active
+        color: white
+        background-color: $cc-teal
+        svg
+          fill: white

@@ -1,7 +1,8 @@
 import * as React from "react";
 import { SharedClassData, SharedStudentData } from "../../stores/firestore";
 import { SplitPane } from "../split-pane";
-import AccountId from "../icons/account-id-badge.svg";
+import IconAccountId from "../icons/account-id-badge.svg";
+import IconSend from "../icons/send-icon.svg";
 import * as css from "./left-nav.sass";
 
 export interface ILeftNavProps {
@@ -25,7 +26,7 @@ export const LeftNav = (props: ILeftNavProps) => {
           <div className={css.students}>
             {sharedClassData.students.map((student) => {
               const className = student === selectedStudent ? css.selected : "";
-              const icon = student.isCurrentUser ? <AccountId /> : null;
+              const icon = student.isCurrentUser ? <IconAccountId /> : null;
               return (
                 <div className={className}
                   key={student.userId}
@@ -43,7 +44,13 @@ export const LeftNav = (props: ILeftNavProps) => {
           </div>
         </div>
         <div className={`${css.leftNavContents} ${css.bottom}`}>
-          (Bottom panel)
+          <div className={css.commentList} />
+          <textarea className={css.comment}
+            placeholder="Enter comment" />
+          <button className={css.submitButton}>
+            <IconSend />
+            <div>Post comment</div>
+          </button>
         </div>
       </SplitPane>
     </div>
