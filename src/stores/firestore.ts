@@ -282,20 +282,30 @@ export class FirestoreStore {
 
     // delete the current user's demo data
     let userId = "1@demo";
-    this.userMap[userId] = "Ashley A.";
+    this.userMap[userId] = "Alvaro, Tameka";
     this.currentUser = {
       userId,
-      displayName: "Ashley A.",
+      displayName: "Alvaro, Tameka",
       docRef: studentDemoData.doc(userId),
     };
     this.unshare();
 
+    const iframeUrl = "https://sagemodeler.concord.org/branch/master/?launchFromLara=eyJyZWNvcmRpZCI6ODMwMTYsImFjY2Vzc0tleXMiOnsicmVhZE9ubHkiOiI5YTQzMjdhYmE0NGZlOTJlYzhiMDkxNWM0MjA1OWYwZGY1MThmMTdmIn19";
+
+    userId = "2@demo";
+    let sharedStudentData: SharedStudentFirestoreData = {
+      userId,
+      iframeUrl
+    };
+    studentDemoData.doc(userId).set(sharedStudentData);
+    this.userMap[userId] = "Longlonglastname, Marie-Marie";
+
     // create demo data for all fake students except for the current user
-    for (let i = 2; i <= 26; i++) {
+    for (let i = 3; i <= 26; i++) {
       userId = `${i}@demo`;
-      const sharedStudentData: SharedStudentFirestoreData = {
+      sharedStudentData = {
         userId,
-        iframeUrl: "https://sagemodeler.concord.org/branch/master/?launchFromLara=eyJyZWNvcmRpZCI6ODMwMTYsImFjY2Vzc0tleXMiOnsicmVhZE9ubHkiOiI5YTQzMjdhYmE0NGZlOTJlYzhiMDkxNWM0MjA1OWYwZGY1MThmMTdmIn19"
+        iframeUrl
       };
       studentDemoData.doc(userId).set(sharedStudentData);
       this.userMap[userId] = `Student ${String.fromCharCode(63 + i)}`;
