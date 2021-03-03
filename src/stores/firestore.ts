@@ -22,6 +22,7 @@ export interface SharedStudentFirestoreDataV1 {
 
 export interface SharedStudentData extends SharedStudentFirestoreData {
   displayName: string;
+  isCurrentUser: boolean
 }
 
 // maps userId to displayName
@@ -234,6 +235,7 @@ export class FirestoreStore {
               userId,
               displayName,
               iframeUrl,
+              isCurrentUser: userId === currentUserId,
             });
           }
         });

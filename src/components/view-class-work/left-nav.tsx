@@ -1,6 +1,7 @@
 import * as React from "react";
 import { SharedClassData, SharedStudentData } from "../../stores/firestore";
 import { SplitPane } from "../split-pane";
+import AccountId from "../icons/account-id-badge.svg";
 import * as css from "./left-nav.sass";
 
 export interface ILeftNavProps {
@@ -24,12 +25,15 @@ export const LeftNav = (props: ILeftNavProps) => {
           <div className={css.students}>
             {sharedClassData.students.map((student) => {
               const className = student === selectedStudent ? css.selected : "";
+              const icon = student.isCurrentUser ? <AccountId /> : null;
               return (
                 <div className={className}
                   key={student.userId}
                   onClick={handleSelectStudent(student)}
                 >
-                  <div className={css.studentIcon} />
+                  <div className={css.studentIcon}>
+                    {icon}
+                  </div>
                   <div className={css.student}>
                     {student.displayName}
                   </div>
