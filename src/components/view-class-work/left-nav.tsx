@@ -1,5 +1,6 @@
 import * as React from "react";
-import { SharedClassData, SharedStudentData } from "../../stores/firestore";
+import { ChangeEvent, useState } from "react";
+import { SharedClassData, SharedStudentData, store } from "../../stores/firestore";
 import { SplitPane } from "../split-pane";
 import IconAccountId from "../icons/account-id-badge.svg";
 import IconSend from "../icons/send-icon.svg";
@@ -19,6 +20,14 @@ export const LeftNav = (props: ILeftNavProps) => {
 
   const handleSelectStudent = (studentId: string) => {
     return () => onSelectStudent(studentId);
+  }
+
+  const [newComment, setNewComment] = useState("");
+  const handleNewCommentChange = (e: ChangeEvent<HTMLTextAreaElement>) => setNewComment(e.target.value)
+  const handleSendComment = () => {
+    if (!selectedStudent) return;
+    store.postComment(selectedStudent.userId, newComment);
+    setNewComment("");
   }
 
   return (
@@ -65,8 +74,14 @@ export const LeftNav = (props: ILeftNavProps) => {
             }
           </div>
           <textarea className={css.commentInput}
-            placeholder="Enter comment" />
-          <button className={css.submitButton}>
+            placeholder="Enter comment"
+            value={newComment}
+            onChange={handleNewCommentChange}
+            disabled={!selectedStudent}
+          />
+          <button className={css.submitButton}
+              onClick={handleSendComment}
+              disabled={!selectedStudent}>
             <IconSend />
             <div>Post comment</div>
           </button>

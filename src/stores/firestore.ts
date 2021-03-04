@@ -1,6 +1,7 @@
 import firebase from 'firebase/app';
 import "firebase/firestore";
 import "firebase/auth";
+import "firebase/database";
 import { FirebaseConfig } from "../config/plugin-config";
 import * as PluginAPI from "@concord-consortium/lara-plugin-api";
 import { IInteractiveAvailableEvent } from "@concord-consortium/lara-plugin-api";
@@ -221,6 +222,20 @@ export class FirestoreStore {
 
   public listenForInteractiveAvailable(listener: InteractiveAvailableListener) {
     this.interactiveAvailableListeners.push(listener);
+  }
+
+  public postComment(recipientUserId: string, message: string) {
+    const comment: Comment = {
+      recipient: recipientUserId,
+      message,
+      time: firebase.firestore.Timestamp.now().toMillis()
+    }
+    this.ensureInitalized();
+    if (this.currentUser) {
+      this.currentUser.docRef.update({
+        comments: firebase.firestore.FieldValue.arrayUnion(comment)
+      });
+    }
   }
 
   private ensureInitalized() {
