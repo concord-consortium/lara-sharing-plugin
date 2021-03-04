@@ -1,9 +1,10 @@
 import * as React from "react";
 import { ChangeEvent, useState } from "react";
-import { SharedClassData, SharedStudentData, store } from "../../stores/firestore";
+import { CommentReceived, SharedClassData, store } from "../../stores/firestore";
 import { SplitPane } from "../split-pane";
 import IconAccountId from "../icons/account-id-badge.svg";
 import IconSend from "../icons/send-icon.svg";
+import IconDelete from "../icons/delete-icon.svg";
 import * as css from "./left-nav.sass";
 
 export interface ILeftNavProps {
@@ -28,7 +29,10 @@ export const LeftNav = (props: ILeftNavProps) => {
     if (!selectedStudent) return;
     store.postComment(selectedStudent.userId, newComment);
     setNewComment("");
-  }
+  };
+  const handleDeleteComment = (comment: CommentReceived) => {
+    return () => store.deleteComment(comment);
+  };
 
   return (
     <div className={css.leftNav}>
@@ -60,13 +64,20 @@ export const LeftNav = (props: ILeftNavProps) => {
               selectedStudent && selectedStudent.commentsReceived.map((comment, i) => {
                 const sender = sharedClassData.students.find(s => s.userId === comment.sender);
                 const senderName = sender ? sender.displayName : "Unknown";
+                const isOwnComment = sender?.isCurrentUser;
                 return (
                   <div className={css.comment} key={`${selectedStudent.userId}-comment-${i}`}>
-                    <div className={css.sender}>
-                      {senderName}
-                    </div>
+                    {
+                      isOwnComment &&
+                      <IconDelete onClick={handleDeleteComment(comment)}/>
+                    }
                     <div>
-                      {comment.message}
+                      <div className={css.sender}>
+                        {senderName}
+                      </div>
+                      <div>
+                        {comment.message}
+                      </div>
                     </div>
                   </div>
                 );

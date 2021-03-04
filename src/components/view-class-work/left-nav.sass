@@ -61,12 +61,20 @@
 
       .comment
         display: flex
-        flex-direction: column
+        flex-direction: row
         justify-content: flex-start
         font-size: 14px
         line-height: 20px
         padding: 9px 5px 0 15px
         color: $cc-charcoal
+
+        svg
+          cursor: pointer
+          fill: $cc-teal-light-4
+
+          &:hover
+            fill: $cc-teal
+
 
         .sender
           font-weight: bold

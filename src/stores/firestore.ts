@@ -238,6 +238,20 @@ export class FirestoreStore {
     }
   }
 
+  public deleteComment(commentReceived: CommentReceived) {
+    const comment: Comment = {
+      recipient: commentReceived.recipient,
+      message: commentReceived.message,
+      time: commentReceived.time
+    }
+    this.ensureInitalized();
+    if (this.currentUser) {
+      this.currentUser.docRef.update({
+        comments: firebase.firestore.FieldValue.arrayRemove(comment)
+      });
+    }
+  }
+
   private ensureInitalized() {
     if (!this.initialized) {
       throw new Error("Firestore store not initialized!");
