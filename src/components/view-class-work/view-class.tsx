@@ -69,7 +69,7 @@ export class ViewClass extends React.Component<IViewClassProps, IState> {
       return this.renderViewerMessage("Click on a student's name to view their work.");
     }
     const foundStudent = !!sharedClassData.students.find((student) => student.userId === selectedStudent.userId);
-    if (!foundStudent) {
+    if (!foundStudent || !selectedStudent.iframeUrl) {
       return this.renderViewerMessage((
         <div>
           <p>{selectedStudent.displayName} has stopped sharing their work.</p>

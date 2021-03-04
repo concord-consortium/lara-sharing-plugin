@@ -44,8 +44,25 @@ export const LeftNav = (props: ILeftNavProps) => {
           </div>
         </div>
         <div className={`${css.leftNavContents} ${css.bottom}`}>
-          <div className={css.commentList} />
-          <textarea className={css.comment}
+          <div className={css.commentList}>
+            {
+              selectedStudent && selectedStudent.commentsReceived.map((comment, i) => {
+                const sender = sharedClassData.students.find(s => s.userId === comment.sender);
+                const senderName = sender ? sender.displayName : "Unknown";
+                return (
+                  <div className={css.comment} key={`${selectedStudent.userId}-comment-${i}`}>
+                    <div className={css.sender}>
+                      {senderName}
+                    </div>
+                    <div>
+                      {comment.message}
+                    </div>
+                  </div>
+                );
+              })
+            }
+          </div>
+          <textarea className={css.commentInput}
             placeholder="Enter comment" />
           <button className={css.submitButton}>
             <IconSend />

@@ -17,12 +17,24 @@ export type SharedStudentFirestoreData = SharedStudentFirestoreDataV1;
 export interface SharedStudentFirestoreDataV1 {
   version?: 1;
   userId: string;
-  iframeUrl: string;
+  iframeUrl: string | null;     // if null, model was previous shared but now is not
+  comments: Comment[];          // comments from this user to other users
 }
 
 export interface SharedStudentData extends SharedStudentFirestoreData {
   displayName: string;
-  isCurrentUser: boolean
+  isCurrentUser: boolean;
+  commentsReceived: CommentReceived[];
+}
+
+export interface Comment {
+  recipient: string;      // userId
+  message: string;
+  time: number;           // unix timestamp
+}
+
+export interface CommentReceived extends Comment {
+  sender: string;
 }
 
 // maps userId to displayName
@@ -185,7 +197,8 @@ export class FirestoreStore {
       const student: SharedStudentFirestoreData = {
         version: 1,
         userId,
-        iframeUrl
+        iframeUrl,
+        comments: [],
       };
       this.currentUser.docRef.set(student);
     }
@@ -194,7 +207,15 @@ export class FirestoreStore {
   public unshare() {
     this.ensureInitalized();
     if (this.currentUser) {
-      return this.currentUser.docRef.delete();
+      return this.db.runTransaction((transaction) => {
+        // if the model has been shared, unsharing simply means wiping the iframeUrl.
+        // comments from the user and to the user are preserved
+        return transaction.get(this.currentUser!.docRef).then((doc) => {
+          if (doc.exists) {
+            transaction.update(this.currentUser!.docRef, {iframeUrl: null});
+          }
+        });
+      })
     }
   }
 
@@ -224,8 +245,8 @@ export class FirestoreStore {
         classData.students = [];
         snapshot.forEach((doc) => {
           const studentData = doc.data() as SharedStudentFirestoreData;
-          const { userId, iframeUrl } = studentData;
-          if (userId === currentUserId) {
+          const { userId, iframeUrl, comments } = studentData;
+          if (userId === currentUserId && iframeUrl) {
             classData.currentUserIsShared = true;
           }
 
@@ -235,9 +256,30 @@ export class FirestoreStore {
               userId,
               displayName,
               iframeUrl,
+              comments,
+              commentsReceived: [],
               isCurrentUser: userId === currentUserId,
             });
           }
+        });
+
+        // collect all comments by recipient.
+        // (In database, comments are stored under senders key, to give edit ownership to them, but
+        // for comment lists we want to sort by recipient.)
+        classData.students.forEach(student => {
+          student.comments?.forEach(comment => {
+            const recipient = classData.students.find(s => s.userId === comment.recipient)
+            if (recipient) {
+              recipient.commentsReceived.push({
+                sender: student.userId,
+                ...comment
+              })
+            }
+          })
+        });
+        // then sort
+        classData.students.forEach(student => {
+          student.commentsReceived.sort((a, b) => a.time - b.time);
         });
 
         // sort by display name
@@ -297,20 +339,53 @@ export class FirestoreStore {
     userId = "2@demo";
     let sharedStudentData: SharedStudentFirestoreData = {
       userId,
-      iframeUrl
+      iframeUrl,
+      comments: [
+        {
+          recipient: "1@demo",
+          message: "Hi Tameka I like your model!",
+          time: 1,
+        },
+        {
+          recipient: "4@demo",
+          message: "Hey student D, this model is terrible",
+          time: 2,
+        }
+      ],
     };
     studentDemoData.doc(userId).set(sharedStudentData);
-    this.userMap[userId] = "Longlonglastname, Marie-Marie";
+    this.userMap[userId] = "Longlonglastname, Marie-Marie-Marie";
+
+    userId = "3@demo";
+    sharedStudentData = {
+      userId,
+      iframeUrl,
+      comments: [
+        {
+          recipient: "1@demo",
+          message: "I don't understand this model at all, Tameka.",
+          time: 0,
+        },
+        {
+          recipient: "3@demo",
+          message: "This is my model and I like it.",
+          time: 3,
+        }
+      ],
+    };
+    studentDemoData.doc(userId).set(sharedStudentData);
+    this.userMap[userId] = "Byrd, Pharren";
 
     // create demo data for all fake students except for the current user
-    for (let i = 3; i <= 26; i++) {
+    for (let i = 4; i <= 26; i++) {
       userId = `${i}@demo`;
       sharedStudentData = {
         userId,
-        iframeUrl
+        iframeUrl,
+        comments: []
       };
       studentDemoData.doc(userId).set(sharedStudentData);
-      this.userMap[userId] = `Student ${String.fromCharCode(63 + i)}`;
+      this.userMap[userId] = `Student ${String.fromCharCode(64 + i)}`;
     }
 
     return studentDemoData;
