@@ -7,16 +7,18 @@ import * as css from "./left-nav.sass";
 
 export interface ILeftNavProps {
   sharedClassData: SharedClassData | null;
-  selectedStudent: SharedStudentData | null;
-  onSelectStudent: (selectedStudent: SharedStudentData | null) => void;
+  selectedStudentId: string | null;
+  onSelectStudent: (selectedStudent: string) => void;
 }
 
 export const LeftNav = (props: ILeftNavProps) => {
-  const {sharedClassData, selectedStudent, onSelectStudent} = props;
+  const {sharedClassData, selectedStudentId, onSelectStudent} = props;
   if (!sharedClassData) return null;
 
-  const handleSelectStudent = (student: SharedStudentData | null) => {
-    return () => onSelectStudent(student);
+  const selectedStudent = sharedClassData.students.find(s => s.userId === selectedStudentId);
+
+  const handleSelectStudent = (studentId: string) => {
+    return () => onSelectStudent(studentId);
   }
 
   return (
@@ -30,7 +32,7 @@ export const LeftNav = (props: ILeftNavProps) => {
               return (
                 <div className={className}
                   key={student.userId}
-                  onClick={handleSelectStudent(student)}
+                  onClick={handleSelectStudent(student.userId)}
                 >
                   <div className={css.studentIcon}>
                     {icon}

@@ -16,13 +16,13 @@ export interface IViewClassProps {
 }
 
 interface IState {
-  selectedStudent: SharedStudentData | null;
+  selectedStudentId: string | null;
 }
 
 export class ViewClass extends React.Component<IViewClassProps, IState> {
 
   public state: IState = {
-    selectedStudent: null
+    selectedStudentId: null
   };
 
   private iFrameRef: React.RefObject<HTMLIFrameElement> = React.createRef();
@@ -46,7 +46,7 @@ export class ViewClass extends React.Component<IViewClassProps, IState> {
         </div>
         <LeftNav
           sharedClassData={sharedClassData}
-          selectedStudent={this.state.selectedStudent}
+          selectedStudentId={this.state.selectedStudentId}
           onSelectStudent={this.handleSelectStudent}
         />
         <div className={css.viewer}>
@@ -58,13 +58,14 @@ export class ViewClass extends React.Component<IViewClassProps, IState> {
 
   private renderViewer() {
     const { sharedClassData } = this.props;
-    const { selectedStudent } = this.state;
+    const { selectedStudentId } = this.state;
     if (!sharedClassData) {
       return this.renderViewerMessage("Loading ...");
     }
     if (sharedClassData.students.length === 0) {
       return this.renderViewerMessage("No students have shared their work.");
     }
+    const selectedStudent = sharedClassData.students.find(s => s.userId === selectedStudentId);
     if (!selectedStudent) {
       return this.renderViewerMessage("Click on a student's name to view their work.");
     }
@@ -106,8 +107,8 @@ export class ViewClass extends React.Component<IViewClassProps, IState> {
     );
   }
 
-  private handleSelectStudent = (selectedStudent: SharedStudentData | null) => {
-    this.setState({selectedStudent});
+  private handleSelectStudent = (selectedStudentId: string | null) => {
+    this.setState({selectedStudentId});
   }
 
   private handleFullScreenClick = () => {
