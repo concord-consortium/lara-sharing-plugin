@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
+import IconSplitterHandle from "./icons/spltter-grabber-handle.svg";
 import * as css from "./split-pane.sass";
 
 interface SplitPaneProps {
@@ -76,7 +77,9 @@ export const SplitPane: React.FC<SplitPaneProps> = ({ children, ...props }) => {
       </div>
       <div className={css.separator}
         onMouseDown={onMouseDown}
-        onTouchStart={onMouseDown} />
+        onTouchStart={onMouseDown}>
+          <IconSplitterHandle />
+      </div>
       <div className={css.splitPaneBottom}>
         {children[1]}
       </div>
