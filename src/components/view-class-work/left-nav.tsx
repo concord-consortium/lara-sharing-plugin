@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { CommentReceived, SharedClassData, store } from "../../stores/firestore";
 import { SplitPane } from "../split-pane";
 import IconAccountId from "../icons/account-id-badge.svg";
@@ -39,6 +39,14 @@ export const LeftNav = (props: ILeftNavProps) => {
   const handleDeleteComment = (comment: CommentReceived) => {
     return () => store.deleteComment(comment);
   };
+
+  const currentStudentCommentsLength = selectedStudent ? selectedStudent.commentsReceived.length : 0;
+  useEffect(() => {
+    // each time select student's comment list changes, mark as read
+    if (selectedStudentId) {
+      store.markCommentsRead(selectedStudentId);
+    }
+  }, [currentStudentCommentsLength]);
 
   return (
     <div className={css.leftNav}>
