@@ -68,7 +68,7 @@
     "react-dom": "^16.6.0"
   },
   "devDependencies": {
-    "@cypress/webpack-preprocessor": "^5.4.1",
+    "@cypress/webpack-preprocessor": "^5.6.0",
     "@svgr/webpack": "^5.4.0",
     "@types/enzyme": "^3.10.5",
     "@types/enzyme-adapter-react-16": "^1.0.6",
@@ -82,9 +82,10 @@
     "autoprefixer": "^9.8.0",
     "babel-core": "^6.26.3",
     "babel-jest": "^26.0.1",
-    "copy-webpack-plugin": "^4.5.4",
+    "babel-loader": "^8.2.2",
+    "copy-webpack-plugin": "^6.4.1",
     "css-loader": "^1.0.1",
-    "cypress": "^4.8.0",
+    "cypress": "^6.6.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "file-loader": "^6.0.0",
@@ -108,14 +109,14 @@
     "tslint-react": "^5.0.0",
     "typescript": "^3.9.5",
     "url-loader": "^4.1.0",
-    "wait-on": "^5.0.1",
+    "wait-on": "^5.2.1",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
     "@concord-consortium/lara-plugin-api": "^3.0.0-pre.18",
-    "firebase": "^7.14.3",
+    "firebase": "^8.2.9",
     "markdown-to-jsx": "^6.8.3",
     "query-string": "^6.2.0",
     "react-tooltip": "^3.9.2",

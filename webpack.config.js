@@ -69,9 +69,11 @@ module.exports = (env, argv) => {
       warningsFilter: /export .* was not found in/
     },
     plugins: [
-      new CopyWebpackPlugin([
-        {from: 'src/public'}
-      ])
+      new CopyWebpackPlugin({
+        patterns: [
+          {from: 'src/public'}
+        ],
+      })
     ],
     externals: {
       'react': 'React',
