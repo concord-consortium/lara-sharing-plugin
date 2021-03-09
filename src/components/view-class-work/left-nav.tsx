@@ -125,8 +125,13 @@ export const LeftNav = (props: ILeftNavProps) => {
                     {icon}
                   </div>
                   <div className={css.student}>
-                    {student.displayName} {unreadCommentsLabel}
+                    {student.displayName}
                   </div>
+                  {unreadCommentsLabel &&
+                    <div className={css.unread}>
+                      {unreadCommentsLabel}
+                    </div>
+                  }
                 </div>
               );
             })}
