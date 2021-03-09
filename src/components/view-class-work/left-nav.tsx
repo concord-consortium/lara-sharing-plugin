@@ -22,9 +22,18 @@ export const LeftNav = (props: ILeftNavProps) => {
   const currentUserId = sharedClassData.students.find(s => s.isCurrentUser)?.userId;
   const selectedStudent = sharedClassData.students.find(s => s.userId === selectedStudentId);
 
+  const [selectedStudentPreviousReadTime, setSelectedStudentPreviousReadTime] = useState(0);
+
   const handleSelectStudent = (studentId: string) => {
     return () => {
+      // first record the previous time when we had seen comments, so we can position the "new comments" line
+      const newlySelectedStudent = sharedClassData.students.find(s => s.userId === studentId);
+      if (newlySelectedStudent) {
+        setSelectedStudentPreviousReadTime(newlySelectedStudent.lastCommentSeen);
+      }
+      // then send to db that we have read the new student's comments
       store.markCommentsRead(studentId);
+      // then select student and display any comments
       onSelectStudent(studentId);
     }
   }
@@ -47,6 +56,43 @@ export const LeftNav = (props: ILeftNavProps) => {
       store.markCommentsRead(selectedStudentId);
     }
   }, [currentStudentCommentsLength]);
+
+  const commentList = selectedStudent && selectedStudent.commentsReceived.map((comment, i) => {
+    const sender = sharedClassData.students.find(s => s.userId === comment.sender);
+    const senderName = sender ? sender.displayName : "Unknown";
+    const isOwnComment = sender?.isCurrentUser;
+    return (
+      <div className={css.comment} key={`${selectedStudent.userId}-comment-${i}`}>
+        {
+          isOwnComment &&
+          <IconDelete onClick={handleDeleteComment(comment)}/>
+        }
+        <div>
+          <div className={css.sender}>
+            {senderName}
+          </div>
+          <div>
+            {comment.message}
+          </div>
+        </div>
+      </div>
+    );
+  });
+
+  // add new comment line
+  let firstNewCommentIndex = 0;
+  if (selectedStudent) {
+    for (let i = 0; i < selectedStudent.commentsReceived.length; i++) {
+      if (selectedStudent.commentsReceived[i].time > selectedStudentPreviousReadTime) {
+        firstNewCommentIndex = i;
+        break;
+      }
+    }
+  }
+  if (commentList && commentList.length > 0 && firstNewCommentIndex > 0) {
+    commentList.splice(firstNewCommentIndex, 0, <div className={css.newCommentLine} />);
+  }
+
 
   return (
     <div className={css.leftNav}>
@@ -88,29 +134,7 @@ export const LeftNav = (props: ILeftNavProps) => {
         </div>
         <div className={`${css.leftNavContents} ${css.bottom}`}>
           <div className={css.commentList}>
-            {
-              selectedStudent && selectedStudent.commentsReceived.map((comment, i) => {
-                const sender = sharedClassData.students.find(s => s.userId === comment.sender);
-                const senderName = sender ? sender.displayName : "Unknown";
-                const isOwnComment = sender?.isCurrentUser;
-                return (
-                  <div className={css.comment} key={`${selectedStudent.userId}-comment-${i}`}>
-                    {
-                      isOwnComment &&
-                      <IconDelete onClick={handleDeleteComment(comment)}/>
-                    }
-                    <div>
-                      <div className={css.sender}>
-                        {senderName}
-                      </div>
-                      <div>
-                        {comment.message}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            }
+            { commentList }
           </div>
           <textarea className={css.commentInput}
             placeholder="Enter comment"
