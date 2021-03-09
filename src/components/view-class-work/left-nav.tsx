@@ -3,6 +3,8 @@ import { ChangeEvent, useState } from "react";
 import { CommentReceived, SharedClassData, store } from "../../stores/firestore";
 import { SplitPane } from "../split-pane";
 import IconAccountId from "../icons/account-id-badge.svg";
+import IconAccountIdPosted from "../icons/account-id-badge-posted.svg";
+import IconPosted from "../icons/posted-comment-badge.svg";
 import IconSend from "../icons/send-icon.svg";
 import IconDelete from "../icons/delete-icon.svg";
 import * as css from "./left-nav.sass";
@@ -17,6 +19,7 @@ export const LeftNav = (props: ILeftNavProps) => {
   const {sharedClassData, selectedStudentId, onSelectStudent} = props;
   if (!sharedClassData) return null;
 
+  const currentUserId = sharedClassData.students.find(s => s.isCurrentUser)?.userId;
   const selectedStudent = sharedClassData.students.find(s => s.userId === selectedStudentId);
 
   const handleSelectStudent = (studentId: string) => {
@@ -41,7 +44,15 @@ export const LeftNav = (props: ILeftNavProps) => {
           <div className={css.students}>
             {sharedClassData.students.map((student) => {
               const className = student === selectedStudent ? css.selected : "";
-              const icon = student.isCurrentUser ? <IconAccountId /> : null;
+              const hasCommented = currentUserId && student.commentsReceived.some(comment => comment.sender === currentUserId);
+              let icon: JSX.Element | null = null;
+              if (student.isCurrentUser && hasCommented) {
+                icon = <IconAccountIdPosted />;
+              } else if (student.isCurrentUser) {
+                icon = <IconAccountId />;
+              } else if (hasCommented) {
+                icon = <IconPosted />;
+              }
               return (
                 <div className={className}
                   key={student.userId}
