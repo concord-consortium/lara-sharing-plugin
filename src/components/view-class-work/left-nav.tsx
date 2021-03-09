@@ -23,7 +23,10 @@ export const LeftNav = (props: ILeftNavProps) => {
   const selectedStudent = sharedClassData.students.find(s => s.userId === selectedStudentId);
 
   const handleSelectStudent = (studentId: string) => {
-    return () => onSelectStudent(studentId);
+    return () => {
+      store.markCommentsRead(studentId);
+      onSelectStudent(studentId);
+    }
   }
 
   const [newComment, setNewComment] = useState("");
@@ -53,6 +56,12 @@ export const LeftNav = (props: ILeftNavProps) => {
               } else if (hasCommented) {
                 icon = <IconPosted />;
               }
+              const lastSeen = student.lastCommentSeen;
+              const unreadComments = student.commentsReceived.reduce((total, curr) => {
+                if (curr.time > lastSeen) return total + 1;
+                return total;
+              }, 0);
+              const unreadCommentsLabel = unreadComments > 0 ? `(${unreadComments})` : "";
               return (
                 <div className={className}
                   key={student.userId}
@@ -62,7 +71,7 @@ export const LeftNav = (props: ILeftNavProps) => {
                     {icon}
                   </div>
                   <div className={css.student}>
-                    {student.displayName}
+                    {student.displayName} {unreadCommentsLabel}
                   </div>
                 </div>
               );

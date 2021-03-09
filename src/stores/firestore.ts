@@ -20,12 +20,14 @@ export interface SharedStudentFirestoreDataV1 {
   userId: string;
   iframeUrl: string | null;     // if null, model was previous shared but now is not
   comments: Comment[];          // comments from this user to other users
+  lastCommentsSeen?: Record<string, number>;    // per-user map of timestamp last message this user has seen
 }
 
 export interface SharedStudentData extends SharedStudentFirestoreData {
   displayName: string;
   isCurrentUser: boolean;
   commentsReceived: CommentReceived[];
+  lastCommentSeen: number;    // timestamp of when current user last read this user's messages
 }
 
 export interface Comment {
@@ -220,6 +222,15 @@ export class FirestoreStore {
     }
   }
 
+  public markCommentsRead(userId: string) {
+    this.ensureInitalized();
+    if (this.currentUser) {
+      this.currentUser.docRef.update({
+        ["lastCommentsSeen."+userId]: firebase.firestore.Timestamp.now().toMillis()
+      });
+    }
+  }
+
   public listenForInteractiveAvailable(listener: InteractiveAvailableListener) {
     this.interactiveAvailableListeners.push(listener);
   }
@@ -272,11 +283,17 @@ export class FirestoreStore {
         const currentUserId = this.currentUser ? this.currentUser.userId : null;
         classData.currentUserIsShared = false;
         classData.students = [];
+        let lastCommentsSeen: Record<string, number> = {};
         snapshot.forEach((doc) => {
           const studentData = doc.data() as SharedStudentFirestoreData;
           const { userId, iframeUrl, comments } = studentData;
-          if (userId === currentUserId && iframeUrl) {
-            classData.currentUserIsShared = true;
+          if (userId === currentUserId) {
+            if (iframeUrl) {
+              classData.currentUserIsShared = true;
+            }
+            if (studentData.lastCommentsSeen) {
+              lastCommentsSeen = studentData.lastCommentsSeen;
+            }
           }
 
           const displayName = this.userMap[userId];
@@ -287,6 +304,7 @@ export class FirestoreStore {
               iframeUrl,
               comments,
               commentsReceived: [],
+              lastCommentSeen: -1,
               isCurrentUser: userId === currentUserId,
             });
           }
@@ -309,6 +327,14 @@ export class FirestoreStore {
         // then sort
         classData.students.forEach(student => {
           student.commentsReceived.sort((a, b) => a.time - b.time);
+        });
+
+        // find timestamps of last comment seen
+        Object.keys(lastCommentsSeen).forEach(userId => {
+          const studentData = classData.students.find(s => s.userId === userId);
+          if (studentData) {
+            studentData.lastCommentSeen = lastCommentsSeen[userId];
+          }
         });
 
         // sort by display name
