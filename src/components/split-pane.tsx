@@ -29,16 +29,17 @@ export const SplitPane: React.FC<SplitPaneProps> = ({ children, ...props }) => {
   const onMouseDown = (e: any) => {
     separatorYPosition.current = e.clientY || e.touches[0]?.clientY;
 
-    document.addEventListener("mousemove", onMouseMove, {capture: true});
-    document.addEventListener("touchmove", onMouseMove, {capture: true});
-    document.addEventListener("mouseup", onMouseUp, {once: true});
-    document.addEventListener("touchend", onMouseUp, {once: true});
+    document.addEventListener("mousemove", onMouseMove, {passive: false, capture: true});
+    document.addEventListener("touchmove", onMouseMove, {passive: false, capture: true});
+    document.addEventListener("mouseup", onMouseUp, {once: true, capture: true});
+    document.addEventListener("touchend", onMouseUp, {once: true, capture: true});
   };
 
   const onMouseMove = (e: any) => {
     if (!separatorYPosition.current || !containerRef.current || !topHeight) {
       return;
     }
+    e.preventDefault();
     e.stopImmediatePropagation();
 
     const minHeight = 20;
