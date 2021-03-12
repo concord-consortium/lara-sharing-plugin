@@ -236,9 +236,11 @@ export class FirestoreStore {
   public markCommentsRead(userId: string) {
     this.ensureInitalized();
     if (this.currentUser) {
-      this.currentUser.docRef.update({
-        ["lastCommentsSeen."+userId]: firebase.firestore.Timestamp.now().toMillis()
-      });
+      this.currentUser.docRef.update(
+        // must use FieldPath as userId may have periods in it
+        new firebase.firestore.FieldPath("lastCommentsSeen", userId),
+        firebase.firestore.Timestamp.now().toMillis()
+      );
     }
   }
 
