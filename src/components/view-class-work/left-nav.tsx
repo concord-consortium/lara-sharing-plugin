@@ -44,6 +44,7 @@ export const LeftNav = (props: ILeftNavProps) => {
     if (!selectedStudent) return;
     store.postComment(selectedStudent.userId, newComment);
     setNewComment("");
+    setSelectedStudentPreviousReadTime(-1);
   };
   const handleDeleteComment = (comment: CommentReceived) => {
     return () => store.deleteComment(comment);
