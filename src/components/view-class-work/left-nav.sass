@@ -1,0 +1,49 @@
+@import "../vars"
+
+.leftNav
+  position: absolute
+  top: $class-work-title-bar-height + $border-width
+  left: 0
+  bottom: 0
+  width: $class-work-left-nav-width
+  background-color: #dae6f3
+  border-right: 1px solid #000
+  border-radius: 0 0 0 $border-radius
+  user-select: none
+  overflow: auto
+
+  .leftNavContents
+    height: 100%
+
+  .top
+
+    .students
+      display: flex
+      flex-direction: column
+      color: $cc-charcoal
+      background-color: $cc-teal-light-7
+
+      >div
+        display: flex
+        padding: 6px 0
+
+        &:hover
+          background-color: $cc-teal-light-6
+
+        &.selected, &.selected:hover
+          font-weight: bold
+          background-color: $cc-teal-light-4
+
+        .studentIcon
+          width: 32px
+          display: flex
+          align-items: center
+          justify-content: center
+
+        .student
+          text-overflow: ellipsis
+          overflow: hidden
+          white-space: nowrap
+
+  .bottom
+    background-color: white

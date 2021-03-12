@@ -1,12 +1,13 @@
 import * as React from "react";
 import * as screenfull from "screenfull";
+import { LeftNav } from "./left-nav";
+import { SharedClassData, SharedStudentData, FirestoreStore } from "../../stores/firestore";
 
 import * as css from "./view-class.sass";
-import ViewSharedIcon from "./icons/view-shared.svg";
-import CloseIcon from "./icons/button-close.svg";
-import FullScreenIcon from "./icons/fullscreen.svg";
+import ViewSharedIcon from "../icons/view-shared.svg";
+import CloseIcon from "../icons/button-close.svg";
+import FullScreenIcon from "../icons/fullscreen.svg";
 
-import { SharedClassData, SharedStudentData, FirestoreStore, FirestoreStoreCancelListener} from "../stores/firestore";
 
 export interface IViewClassProps {
   onClose: () => void;
@@ -37,46 +38,20 @@ export class ViewClass extends React.Component<IViewClassProps, IState> {
           <div className={css.titleBarContents}>
             <ViewSharedIcon className={`${css.left} ${css.icon}`} />
             <div className={css.center}>
-              <strong>View Shared Classwork{haveInteractiveName ? ": " : ""}</strong>
+              View Shared Classwork{haveInteractiveName ? ": " : ""}
               {interactiveName}
             </div>
             <CloseIcon className={`${css.right} ${css.icon}`}  onClick={this.props.onClose} />
           </div>
         </div>
-        <div className={css.leftNav}>
-          {this.renderLeftNav()}
-        </div>
+        <LeftNav
+          sharedClassData={sharedClassData}
+          selectedStudent={this.state.selectedStudent}
+          onSelectStudent={this.handleSelectStudent}
+        />
         <div className={css.viewer}>
           {this.renderViewer()}
         </div>
-      </div>
-    );
-  }
-
-  private renderLeftNav() {
-    const { sharedClassData } = this.props;
-    const { selectedStudent } = this.state;
-
-    if (!sharedClassData) {
-      return <div className={css.leftNavContents} />;
-    }
-
-    return (
-      <div className={css.leftNavContents}>
-        <ul>
-          {sharedClassData.students.map((student) => {
-            const className = student === selectedStudent ? css.selected : "";
-            return (
-              <li
-                key={student.userId}
-                className={className}
-                onClick={this.handleSelectStudent(student)}
-              >
-                {student.displayName}
-              </li>
-            );
-          })}
-        </ul>
       </div>
     );
   }
@@ -132,7 +107,7 @@ export class ViewClass extends React.Component<IViewClassProps, IState> {
   }
 
   private handleSelectStudent = (selectedStudent: SharedStudentData | null) => {
-    return () => this.setState({selectedStudent});
+    this.setState({selectedStudent});
   }
 
   private handleFullScreenClick = () => {

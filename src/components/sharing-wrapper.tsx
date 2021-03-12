@@ -4,7 +4,7 @@ import { IAuthoredState } from "../types";
 import ButtonShareIcon from "./icons/button-share.svg";
 import ButtonUnShareIcon from "./icons/button-unshare.svg";
 import ViewClassIcon from "./icons/view-class.svg";
-import ViewClass from "./view-class";
+import ViewClass from "./view-class-work/view-class";
 import ShareModal from "./share-modal";
 import ToggleButton from "./toggle-button";
 

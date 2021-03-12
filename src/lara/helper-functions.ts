@@ -11,15 +11,15 @@ export const portalUserPathToFirebaseId = (portalUserPath: string) => {
   return portalUserPath.replace(replaceRegx, firebaseReplacement);
 };
 
-const studentValue = (student: PluginAPI.IUser): string => {
+const getDisplayName = (student: PluginAPI.IUser): string => {
   const {first_name, last_name} = student;
   const first = (first_name && first_name.length > 0)
      ? first_name.charAt(0).toUpperCase() + first_name.slice(1)
      : "";
   const last = (last_name && last_name.length > 0)
-     ? last_name.charAt(0).toUpperCase() + "."
+     ? last_name.charAt(0).toUpperCase() + last_name.slice(1)
      : "";
-  return `${first} ${last}`;
+  return `${last}, ${first}`;
 };
 
 export const getFireStoreParams = (
@@ -46,7 +46,7 @@ export const getFireStoreParams = (
     // ADD
     classInfo.students.forEach( (student) => {
       const key = portalUserPathToFirebaseId(student.id);
-      const value = studentValue(student);
+      const value = getDisplayName(student);
       userMap[key] = value;
     });
     const params: InitLaraFirestoreParams = {
