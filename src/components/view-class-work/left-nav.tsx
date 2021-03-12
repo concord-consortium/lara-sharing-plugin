@@ -1,22 +1,38 @@
 import * as React from "react";
-import { SharedClassData, SharedStudentData } from "../../stores/firestore";
+import { ChangeEvent, useState } from "react";
+import { CommentReceived, SharedClassData, store } from "../../stores/firestore";
 import { SplitPane } from "../split-pane";
-import AccountId from "../icons/account-id-badge.svg";
+import IconAccountId from "../icons/account-id-badge.svg";
+import IconSend from "../icons/send-icon.svg";
+import IconDelete from "../icons/delete-icon.svg";
 import * as css from "./left-nav.sass";
 
 export interface ILeftNavProps {
   sharedClassData: SharedClassData | null;
-  selectedStudent: SharedStudentData | null;
-  onSelectStudent: (selectedStudent: SharedStudentData | null) => void;
+  selectedStudentId: string | null;
+  onSelectStudent: (selectedStudent: string) => void;
 }
 
 export const LeftNav = (props: ILeftNavProps) => {
-  const {sharedClassData, selectedStudent, onSelectStudent} = props;
+  const {sharedClassData, selectedStudentId, onSelectStudent} = props;
   if (!sharedClassData) return null;
 
-  const handleSelectStudent = (student: SharedStudentData | null) => {
-    return () => onSelectStudent(student);
+  const selectedStudent = sharedClassData.students.find(s => s.userId === selectedStudentId);
+
+  const handleSelectStudent = (studentId: string) => {
+    return () => onSelectStudent(studentId);
   }
+
+  const [newComment, setNewComment] = useState("");
+  const handleNewCommentChange = (e: ChangeEvent<HTMLTextAreaElement>) => setNewComment(e.target.value)
+  const handleSendComment = () => {
+    if (!selectedStudent) return;
+    store.postComment(selectedStudent.userId, newComment);
+    setNewComment("");
+  };
+  const handleDeleteComment = (comment: CommentReceived) => {
+    return () => store.deleteComment(comment);
+  };
 
   return (
     <div className={css.leftNav}>
@@ -25,11 +41,11 @@ export const LeftNav = (props: ILeftNavProps) => {
           <div className={css.students}>
             {sharedClassData.students.map((student) => {
               const className = student === selectedStudent ? css.selected : "";
-              const icon = student.isCurrentUser ? <AccountId /> : null;
+              const icon = student.isCurrentUser ? <IconAccountId /> : null;
               return (
                 <div className={className}
                   key={student.userId}
-                  onClick={handleSelectStudent(student)}
+                  onClick={handleSelectStudent(student.userId)}
                 >
                   <div className={css.studentIcon}>
                     {icon}
@@ -43,7 +59,43 @@ export const LeftNav = (props: ILeftNavProps) => {
           </div>
         </div>
         <div className={`${css.leftNavContents} ${css.bottom}`}>
-          (Bottom panel)
+          <div className={css.commentList}>
+            {
+              selectedStudent && selectedStudent.commentsReceived.map((comment, i) => {
+                const sender = sharedClassData.students.find(s => s.userId === comment.sender);
+                const senderName = sender ? sender.displayName : "Unknown";
+                const isOwnComment = sender?.isCurrentUser;
+                return (
+                  <div className={css.comment} key={`${selectedStudent.userId}-comment-${i}`}>
+                    {
+                      isOwnComment &&
+                      <IconDelete onClick={handleDeleteComment(comment)}/>
+                    }
+                    <div>
+                      <div className={css.sender}>
+                        {senderName}
+                      </div>
+                      <div>
+                        {comment.message}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            }
+          </div>
+          <textarea className={css.commentInput}
+            placeholder="Enter comment"
+            value={newComment}
+            onChange={handleNewCommentChange}
+            disabled={!selectedStudent}
+          />
+          <button className={css.submitButton}
+              onClick={handleSendComment}
+              disabled={!selectedStudent}>
+            <IconSend />
+            <div>Post comment</div>
+          </button>
         </div>
       </SplitPane>
     </div>

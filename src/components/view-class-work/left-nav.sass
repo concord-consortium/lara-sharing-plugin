@@ -36,6 +36,7 @@
 
         .studentIcon
           width: 32px
+          min-width: 32px
           display: flex
           align-items: center
           justify-content: center
@@ -46,4 +47,74 @@
           white-space: nowrap
 
   .bottom
+    display: flex
+    flex-direction: column
+    justify-content: flex-start
     background-color: white
+
+    .commentList
+      margin: auto
+      margin-top: 0
+      overflow-y: scroll
+      flex-grow: 2
+      width: 100%
+
+      .comment
+        display: flex
+        flex-direction: row
+        justify-content: flex-start
+        font-size: 14px
+        line-height: 20px
+        padding: 9px 5px 0 15px
+        color: $cc-charcoal
+
+        svg
+          cursor: pointer
+          fill: $cc-teal-light-4
+
+          &:hover
+            fill: $cc-teal
+
+
+        .sender
+          font-weight: bold
+
+    .commentInput
+      width: 210px
+      height: 75px
+      margin: 5px 0 5px 15px
+      padding: 7px
+      box-sizing: border-box
+      border-radius: $border-radius
+      font-family: "Lato", arial, sans-serif
+
+    .submitButton
+      margin: 0 0 10px 82px
+      display: flex
+      justify-content: center
+      align-items: center
+      width: 143px
+      height: 30px
+      left: 82px
+      bottom: 10px
+      box-sizing: border-box
+      color: $cc-charcoal
+      background-color: $cc-teal-light-6
+      border: 1.5px solid $cc-charcoal-light-1
+      border-radius: $button-radius
+
+      svg
+        margin-right: 5px
+      >div
+        margin-top: -2px
+        font-family: "Lato", arial, sans-serif
+        font-size: 16px
+        font-weight: bold
+
+      &:hover
+        background-color: $cc-teal-light-4
+      &:active
+        color: white
+        background-color: $cc-teal
+        svg
+          fill: white

@@ -7,6 +7,9 @@ interface SplitPaneProps {
   children?: JSX.Element[];
 }
 
+const MIN_TOP_HEIGHT = 20;
+const MIN_BOTTOM_HEIGHT = 140;
+
 export const SplitPane: React.FC<SplitPaneProps> = ({ children, ...props }) => {
   if (!children || children.length !== 2) return null;
 
@@ -46,8 +49,8 @@ export const SplitPane: React.FC<SplitPaneProps> = ({ children, ...props }) => {
     e.preventDefault();
     e.stopImmediatePropagation();
 
-    const minHeight = 20;
-    const maxHeight = containerRef.current.clientHeight - 20;
+    const minHeight = MIN_TOP_HEIGHT;
+    const maxHeight = containerRef.current.clientHeight - MIN_BOTTOM_HEIGHT;
 
     const y = e.clientY || e.touches[0]?.clientY;
     const newTopHeight = topHeightWhenClicked.current + y - separatorYPosition.current;
@@ -60,6 +63,7 @@ export const SplitPane: React.FC<SplitPaneProps> = ({ children, ...props }) => {
       return topHeight !== maxHeight && setTopHeight(maxHeight);
     }
 
+    separatorYPosition.current = y;
     setTopHeight(newTopHeight);
   };
 
