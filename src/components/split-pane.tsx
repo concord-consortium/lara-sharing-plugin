@@ -14,6 +14,7 @@ export const SplitPane: React.FC<SplitPaneProps> = ({ children, ...props }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [topHeight, setTopHeight] = useState<number | null>(null);
   const separatorYPosition = useRef<number | null>(null);
+  const topHeightWhenClicked = useRef<number | null>(null);
 
   useEffect(() => {
     if (topPaneRef.current) {
@@ -28,6 +29,9 @@ export const SplitPane: React.FC<SplitPaneProps> = ({ children, ...props }) => {
 
   const onMouseDown = (e: any) => {
     separatorYPosition.current = e.clientY || e.touches[0]?.clientY;
+    // because of the way the `topHeight` state property gets saved in onMouseMove's closure,
+    // using a ref allows onMouseMove to get the latest value
+    topHeightWhenClicked.current = topHeight;
 
     document.addEventListener("mousemove", onMouseMove, {passive: false, capture: true});
     document.addEventListener("touchmove", onMouseMove, {passive: false, capture: true});
@@ -46,7 +50,7 @@ export const SplitPane: React.FC<SplitPaneProps> = ({ children, ...props }) => {
     const maxHeight = containerRef.current.clientHeight - 20;
 
     const y = e.clientY || e.touches[0]?.clientY;
-    const newTopHeight = topHeight + y - separatorYPosition.current;
+    const newTopHeight = topHeightWhenClicked.current + y - separatorYPosition.current;
 
     if (newTopHeight <= minHeight) {
       return topHeight !== minHeight && setTopHeight(minHeight);
