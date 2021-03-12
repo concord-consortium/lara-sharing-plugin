@@ -28,18 +28,24 @@ export const SplitPane: React.FC<SplitPaneProps> = ({ children, ...props }) => {
 
   const onMouseDown = (e: any) => {
     separatorYPosition.current = e.clientY || e.touches[0]?.clientY;
+
+    document.addEventListener("mousemove", onMouseMove, {capture: true});
+    document.addEventListener("touchmove", onMouseMove, {capture: true});
+    document.addEventListener("mouseup", onMouseUp, {once: true});
+    document.addEventListener("touchend", onMouseUp, {once: true});
   };
 
   const onMouseMove = (e: any) => {
     if (!separatorYPosition.current || !containerRef.current || !topHeight) {
       return;
     }
+    e.stopImmediatePropagation();
+
     const minHeight = 20;
     const maxHeight = containerRef.current.clientHeight - 20;
 
     const y = e.clientY || e.touches[0]?.clientY;
     const newTopHeight = topHeight + y - separatorYPosition.current;
-    separatorYPosition.current = y;
 
     if (newTopHeight <= minHeight) {
       return topHeight !== minHeight && setTopHeight(minHeight);
@@ -54,21 +60,12 @@ export const SplitPane: React.FC<SplitPaneProps> = ({ children, ...props }) => {
 
   const onMouseUp = (e: any) => {
     separatorYPosition.current = null;
+
+    document.removeEventListener("mousemove", onMouseMove);
+    document.removeEventListener("touchmove", onMouseMove);
+    document.removeEventListener("mouseup", onMouseUp);
+    document.removeEventListener("touchend", onMouseUp);
   };
-
-  React.useEffect(() => {
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("touchmove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
-    document.addEventListener("touchend", onMouseUp);
-
-    return () => {
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("touchmove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
-      document.removeEventListener("touchend", onMouseUp);
-    };
-  });
 
   return (
     <div {...props} className={css.splitPane} ref={containerRef}>
