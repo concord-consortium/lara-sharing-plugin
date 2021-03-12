@@ -63,8 +63,6 @@ export const SplitPane: React.FC<SplitPaneProps> = ({ children, ...props }) => {
 
     document.removeEventListener("mousemove", onMouseMove);
     document.removeEventListener("touchmove", onMouseMove);
-    document.removeEventListener("mouseup", onMouseUp);
-    document.removeEventListener("touchend", onMouseUp);
   };
 
   return (
