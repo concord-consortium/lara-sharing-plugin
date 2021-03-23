@@ -10,8 +10,17 @@
     left: 0px;
     right: 0px;
     height: 24px;
-    text-align: right;
     color: white;
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 5px;
+
+    .icons
+      padding-right: 7px;
 
   svg
     box-sizing: content-box;
+
+    &.newCommentBadge
+      position: absolute
+      transform: translateX(-10px)
