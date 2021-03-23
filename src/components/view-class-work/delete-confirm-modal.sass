@@ -1,0 +1,97 @@
+@import "../vars"
+
+$titleBarHeight: 30px
+
+.overlay
+  position: absolute
+  width: 100%
+  height: 100%
+  background-color: rgba(0,0,0,0.2)
+  pointer-events: none
+
+  .deleteModal
+    pointer-events: all
+    position: absolute
+    top: 0
+    right: 0
+    bottom: 0
+    left: 0
+    display: flex
+    align-items: center
+    justify-content: center
+    height: 100%
+    z-index: 1
+
+    .dialog
+      background-color: white
+      border: 1px solid #000
+      border-radius: $border-radius
+      width: 210px
+      height: 166px
+      color: $cc-charcoal
+      position: relative
+
+    .titleBar
+      height: $titleBarHeight
+      user-select: none
+
+      .titleBarContents
+        height: $titleBarHeight
+        display: flex
+        justify-content: space-around
+        padding-top: 5px
+
+        .center
+          flex-grow: 1
+          font-weight: bold
+          font-size: 18px
+          text-align: center
+          padding-top: 7px
+        .right
+          flex-grow: 0
+          fill: #fff
+          font-weight: bold
+          &.icon
+            width: 32px
+            margin: 0
+            cursor: pointer
+
+        .icon
+          background-color: transparent
+          width: 1em
+          margin: 0 10px 0 5px
+
+    .contents
+      padding: 10px 18px
+
+      .submit
+        position: absolute
+        bottom: 15px
+        right: 5px
+        display: flex
+        justify-content: flex-end
+
+        button
+          margin: 0 0 0 5px
+          display: flex
+          justify-content: center
+          align-items: center
+          width: 69px
+          height: 30px
+          box-sizing: border-box
+          background-color: white
+          border: 1.5px solid $cc-charcoal-light-1
+          border-radius: $button-radius
+          font-size: 15px
+          font-weight: bold
+          color: $cc-charcoal
+          cursor: pointer
+
+          &:nth-of-type(2)
+            background-color: $cc-teal-light-6
+
+          &:hover
+            background-color: $cc-teal-light-4
+          &:active
+            color: white
+            background-color: $cc-teal
