@@ -20,12 +20,14 @@ export interface SharedStudentFirestoreDataV1 {
   userId: string;
   iframeUrl: string | null;     // if null, model was previous shared but now is not
   comments: Comment[];          // comments from this user to other users
+  lastCommentsSeen?: Record<string, number>;    // per-user map of timestamp last message this user has seen
 }
 
 export interface SharedStudentData extends SharedStudentFirestoreData {
   displayName: string;
   isCurrentUser: boolean;
   commentsReceived: CommentReceived[];
+  lastCommentSeen: number;    // timestamp of when current user last read this user's messages
 }
 
 export interface Comment {
@@ -195,13 +197,24 @@ export class FirestoreStore {
     this.ensureInitalized();
     if (this.currentUser) {
       const { userId } = this.currentUser;
-      const student: SharedStudentFirestoreData = {
-        version: 1,
-        userId,
-        iframeUrl,
-        comments: [],
-      };
-      this.currentUser.docRef.set(student);
+
+      return this.db.runTransaction((transaction) => {
+        // if the model has been shared once before, we just want to update the iframeUrl
+        return transaction.get(this.currentUser!.docRef).then((doc) => {
+          if (doc.exists) {
+            transaction.update(this.currentUser!.docRef, {iframeUrl});
+          } else {
+            const student: SharedStudentFirestoreData = {
+              version: 1,
+              userId,
+              iframeUrl,
+              comments: [],
+              lastCommentsSeen: {}
+            };
+            transaction.set(this.currentUser!.docRef, student);
+          }
+        });
+      });
     }
   }
 
@@ -216,7 +229,18 @@ export class FirestoreStore {
             transaction.update(this.currentUser!.docRef, {iframeUrl: null});
           }
         });
-      })
+      });
+    }
+  }
+
+  public markCommentsRead(userId: string) {
+    this.ensureInitalized();
+    if (this.currentUser) {
+      this.currentUser.docRef.update(
+        // must use FieldPath as userId may have periods in it
+        new firebase.firestore.FieldPath("lastCommentsSeen", userId),
+        firebase.firestore.Timestamp.now().toMillis()
+      );
     }
   }
 
@@ -272,11 +296,17 @@ export class FirestoreStore {
         const currentUserId = this.currentUser ? this.currentUser.userId : null;
         classData.currentUserIsShared = false;
         classData.students = [];
+        let lastCommentsSeen: Record<string, number> = {};
         snapshot.forEach((doc) => {
           const studentData = doc.data() as SharedStudentFirestoreData;
           const { userId, iframeUrl, comments } = studentData;
-          if (userId === currentUserId && iframeUrl) {
-            classData.currentUserIsShared = true;
+          if (userId === currentUserId) {
+            if (iframeUrl) {
+              classData.currentUserIsShared = true;
+            }
+            if (studentData.lastCommentsSeen) {
+              lastCommentsSeen = studentData.lastCommentsSeen;
+            }
           }
 
           const displayName = this.userMap[userId];
@@ -287,6 +317,7 @@ export class FirestoreStore {
               iframeUrl,
               comments,
               commentsReceived: [],
+              lastCommentSeen: -1,
               isCurrentUser: userId === currentUserId,
             });
           }
@@ -309,6 +340,14 @@ export class FirestoreStore {
         // then sort
         classData.students.forEach(student => {
           student.commentsReceived.sort((a, b) => a.time - b.time);
+        });
+
+        // find timestamps of last comment seen
+        Object.keys(lastCommentsSeen).forEach(userId => {
+          const studentData = classData.students.find(s => s.userId === userId);
+          if (studentData) {
+            studentData.lastCommentSeen = lastCommentsSeen[userId];
+          }
         });
 
         // sort by display name
@@ -363,22 +402,32 @@ export class FirestoreStore {
     };
     this.unshare();
 
+    let sharedStudentData: SharedStudentFirestoreData = {
+      userId,
+      iframeUrl: null,
+      comments: [],
+      lastCommentsSeen: {
+        "4@demo": 25,
+      }
+    };
+    studentDemoData.doc(userId).set(sharedStudentData);
+
     const iframeUrl = "https://sagemodeler.concord.org/branch/master/?launchFromLara=eyJyZWNvcmRpZCI6ODMwMTYsImFjY2Vzc0tleXMiOnsicmVhZE9ubHkiOiI5YTQzMjdhYmE0NGZlOTJlYzhiMDkxNWM0MjA1OWYwZGY1MThmMTdmIn19";
 
     userId = "2@demo";
-    let sharedStudentData: SharedStudentFirestoreData = {
+    sharedStudentData = {
       userId,
       iframeUrl,
       comments: [
         {
           recipient: "1@demo",
           message: "Hi Tameka I like your model!",
-          time: 1,
+          time: 10,
         },
         {
           recipient: "4@demo",
           message: "Hey student D, this model is terrible",
-          time: 2,
+          time: 20,
         }
       ],
     };
@@ -396,9 +445,24 @@ export class FirestoreStore {
           time: 0,
         },
         {
+          recipient: "2@demo",
+          message: "Hi Marie-Marie-Marie",
+          time: 5,
+        },
+        {
           recipient: "3@demo",
-          message: "This is my model and I like it.",
-          time: 3,
+          message: "This is my model and I like it",
+          time: 5,
+        },
+        {
+          recipient: "4@demo",
+          message: "I really like this model Student D",
+          time: 10,
+        },
+        {
+          recipient: "4@demo",
+          message: "Oh wait, actually I agree with Marie.",
+          time: 30,
         }
       ],
     };

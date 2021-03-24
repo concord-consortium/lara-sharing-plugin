@@ -46,6 +46,9 @@
           overflow: hidden
           white-space: nowrap
 
+        .unread
+          padding-left: 3px
+
   .bottom
     display: flex
     flex-direction: column
@@ -79,6 +82,26 @@
         .sender
           font-weight: bold
 
+      .newCommentLine
+        display: flex
+        flex-direction: row
+        justify-content: flex-end
+        margin-top: 5px
+        margin-bottom: -14px
+        &:before
+          content: ' '
+          flex-grow: 2
+          height: 1px
+          background-color: $hi-green-dark2
+          transform: translate(0, 2px)
+        &:after
+          content: 'New'
+          position: relative
+          top: -7px
+          font-size: 12px
+          color: $hi-green-dark2
+          padding: 2px
+
     .commentInput
       width: 210px
       height: 75px
@@ -93,7 +116,7 @@
       display: flex
       justify-content: center
       align-items: center
-      width: 143px
+      width: 144px
       height: 30px
       left: 82px
       bottom: 10px
@@ -108,7 +131,7 @@
       >div
         margin-top: -2px
         font-family: "Lato", arial, sans-serif
-        font-size: 16px
+        font-size: 15px
         font-weight: bold
 
       &:hover

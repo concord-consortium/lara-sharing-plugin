@@ -63,7 +63,6 @@ export const SplitPane: React.FC<SplitPaneProps> = ({ children, ...props }) => {
       return topHeight !== maxHeight && setTopHeight(maxHeight);
     }
 
-    separatorYPosition.current = y;
     setTopHeight(newTopHeight);
   };
 

@@ -5,47 +5,54 @@ const closeModal = () => {
 };
 
 context("Test the demo app", () => {
-  beforeEach(() => {
-    cy.visit("/demo.html");
-  });
 
   describe("Demo page", () => {
-    const openViewClass = () => {
-      cy.get("#plugin").find(buttonSelector).eq(0).click();
-      closeModal();
-      cy.get("#plugin").find(buttonSelector).eq(1).click();
-    };
 
     it("renders the demo page with wrapper component and svg icons", () => {
+      cy.visit("/demo.html");
       cy.get("#plugin")
         .find("svg");
     });
 
     it("does not allow view class without share clicked first", () => {
+      cy.visit("/demo.html");
       cy.get("#plugin").find(buttonSelector).eq(1).click();
       cy.get("#plugin").find(".view-class--viewClass--SharingPluginV1").should("not.exist");
     });
 
-    it("does allow view class after share clicked", () => {
-      openViewClass();
-      cy.get("#plugin").find(".view-class--viewClass--SharingPluginV1").should("exist");
-      cy.get("#plugin").find(".view-class--titleBarContents--SharingPluginV1").contains("Demo Interactive");
-    });
+    describe("The class dialog", () => {
 
-    it("shows the list of students in the class view", () => {
-      openViewClass();
-      cy.get("#plugin").find(".left-nav--students--SharingPluginV1>div").its("length").should("eq", 26);
-    });
+    const openViewClass = () => {
+      cy.wait(1000)
+      cy.get("#plugin").find(buttonSelector).eq(0).click();
+      cy.wait(3000)
+      closeModal();
+      cy.get("#plugin").find(buttonSelector).eq(1).click();
+    };
 
-    it("shows the message to click on a student's name in the class view", () => {
-      openViewClass();
-      cy.get("#plugin").find(".view-class--viewerMessageContents--SharingPluginV1").first().contains("Click on a student's name to view their work.");
-    });
+      before(() => {
+        cy.visit("/demo.html");
+        openViewClass();
+      })
 
-    it("shows the iframe when a student's name is clicked", () => {
-      openViewClass();
-      cy.get("#plugin").find(".left-nav--students--SharingPluginV1 div").first().click();
-      cy.get("#plugin").find(".view-class--viewerInteractiveIFrame--SharingPluginV1").should("exist");
+      it("does allow view class after share clicked", () => {
+        cy.get("#plugin").find(".view-class--viewClass--SharingPluginV1").should("exist");
+        cy.get("#plugin").find(".view-class--titleBarContents--SharingPluginV1").contains("Demo Interactive");
+      });
+
+      it("shows the list of students in the class view", () => {
+        cy.get("#plugin").find(".left-nav--students--SharingPluginV1>div").its("length").should("eq", 26);
+      });
+
+      it("shows the message to click on a student's name in the class view", () => {
+        cy.get("#plugin").find(".view-class--viewerMessageContents--SharingPluginV1").first().contains("Click on a student's name to view their work.");
+      });
+
+      it("shows the iframe when a student's name is clicked", () => {
+        cy.get("#plugin").find(".left-nav--students--SharingPluginV1 div").first().click();
+        cy.get("#plugin").find(".view-class--viewerInteractiveIFrame--SharingPluginV1").should("exist");
+      });
+
     });
   });
 });
