@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { CommentReceived, SharedClassData, store } from "../../stores/firestore";
 import { SplitPane } from "../split-pane";
 import IconAccountId from "../icons/account-id-badge.svg";
@@ -19,6 +19,9 @@ export interface ILeftNavProps {
 export const LeftNav = (props: ILeftNavProps) => {
   const {sharedClassData, selectedStudentId, onSelectStudent} = props;
   if (!sharedClassData) return null;
+
+  const newCommentLineRef = useRef<HTMLDivElement>(null);
+  const lastCommentRef = useRef<HTMLDivElement>(null);
 
   const currentUserId = sharedClassData.students.find(s => s.isCurrentUser)?.userId;
   const selectedStudent = sharedClassData.students.find(s => s.userId === selectedStudentId);
@@ -70,14 +73,22 @@ export const LeftNav = (props: ILeftNavProps) => {
     if (selectedStudentId) {
       store.markCommentsRead(selectedStudentId);
     }
-  }, [currentStudentCommentsLength]);
+    // if our own comment is the last one, scroll to it
+    if (selectedStudent
+        && selectedStudent.commentsReceived[selectedStudent.commentsReceived.length - 1].sender === currentUserId
+        && lastCommentRef.current) {
+      lastCommentRef.current.scrollIntoView()
+    }
+  }, [currentStudentCommentsLength, lastCommentRef.current]);
 
   const commentList = selectedStudent && selectedStudent.commentsReceived.map((comment, i) => {
     const sender = sharedClassData.students.find(s => s.userId === comment.sender);
     const senderName = sender ? sender.displayName : "Unknown";
     const isOwnComment = sender?.isCurrentUser;
+    const isLastComment = i === selectedStudent.commentsReceived.length - 1;
     return (
-      <div className={css.comment} key={`${selectedStudent.userId}-comment-${i}`}>
+      <div className={css.comment} key={`${selectedStudent.userId}-comment-${i}`}
+          ref={isLastComment ? lastCommentRef : null}>
         {
           isOwnComment &&
           <IconDelete onClick={handleDeleteComment(comment)}/>
@@ -95,7 +106,7 @@ export const LeftNav = (props: ILeftNavProps) => {
   });
 
   // add new comment line
-  let firstNewCommentIndex = 0;
+  let firstNewCommentIndex = -1;
   if (selectedStudent) {
     for (let i = 0; i < selectedStudent.commentsReceived.length; i++) {
       if (selectedStudent.commentsReceived[i].time > selectedStudentPreviousReadTime) {
@@ -105,8 +116,17 @@ export const LeftNav = (props: ILeftNavProps) => {
     }
   }
   if (commentList && commentList.length > 0 && firstNewCommentIndex > 0) {
-    commentList.splice(firstNewCommentIndex, 0, <div className={css.newCommentLine} />);
+    commentList.splice(firstNewCommentIndex, 0, <div className={css.newCommentLine} ref={newCommentLineRef} />);
   }
+
+  // when new user is selected, scroll to new comment line if there is one, or the bottom if there are no new comments
+  useEffect(() => {
+    if (newCommentLineRef.current) {
+      newCommentLineRef.current.scrollIntoView()
+    } else if (firstNewCommentIndex === -1 && lastCommentRef.current) {
+      lastCommentRef.current.scrollIntoView()
+    }
+  }, [currentUserId, newCommentLineRef.current, lastCommentRef.current]);
 
   return (
     <div className={css.leftNav}>

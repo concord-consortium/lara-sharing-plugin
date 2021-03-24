@@ -461,7 +461,18 @@ export class FirestoreStore {
         },
         {
           recipient: "4@demo",
+          message: "It's awesome",
+          time: 11,
+        },
+        {
+          recipient: "4@demo",
           message: "Oh wait, actually I agree with Marie.",
+          time: 30,
+        },
+        {
+          recipient: "4@demo",
+          message: `Thinking this over more, I let myself be swayed by peer-pressure.
+          Also I want this comment to appear below the fold.`,
           time: 30,
         }
       ],
