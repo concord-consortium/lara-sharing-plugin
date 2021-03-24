@@ -8,6 +8,7 @@ import IconPosted from "../icons/posted-comment-badge.svg";
 import IconSend from "../icons/send-icon.svg";
 import IconDelete from "../icons/delete-icon.svg";
 import * as css from "./left-nav.sass";
+import DeleteConfirmModal from "./delete-confirm-modal";
 
 export interface ILeftNavProps {
   sharedClassData: SharedClassData | null;
@@ -46,8 +47,21 @@ export const LeftNav = (props: ILeftNavProps) => {
     setNewComment("");
     setSelectedStudentPreviousReadTime(-1);
   };
+
+  const [commentToBeDeleted, setCommentToBeDeleted] = useState<CommentReceived | null>(null);
+  const [showingDeleteConfirm, setShowingDeleteConfirm] = useState(false);
+  const handleConfirmDelete = () => {
+    if (commentToBeDeleted) {
+      store.deleteComment(commentToBeDeleted);
+    }
+    setShowingDeleteConfirm(false);
+  };
+  const handleCloseDelete = () => { setShowingDeleteConfirm(false) };
   const handleDeleteComment = (comment: CommentReceived) => {
-    return () => store.deleteComment(comment);
+    return () => {
+      setCommentToBeDeleted(comment);
+      setShowingDeleteConfirm(true);
+    }
   };
 
   const currentStudentCommentsLength = selectedStudent ? selectedStudent.commentsReceived.length : 0;
@@ -94,9 +108,14 @@ export const LeftNav = (props: ILeftNavProps) => {
     commentList.splice(firstNewCommentIndex, 0, <div className={css.newCommentLine} />);
   }
 
-
   return (
     <div className={css.leftNav}>
+      {showingDeleteConfirm &&
+        <DeleteConfirmModal
+          onConfirm={handleConfirmDelete}
+          onClose={handleCloseDelete}
+        />
+      }
       <SplitPane>
         <div className={`${css.leftNavContents} ${css.top}`}>
           <div className={css.students}>
