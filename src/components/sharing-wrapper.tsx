@@ -4,6 +4,7 @@ import { IAuthoredState } from "../types";
 import ButtonShareIcon from "./icons/button-share.svg";
 import ButtonUnShareIcon from "./icons/button-unshare.svg";
 import ViewClassIcon from "./icons/view-class.svg";
+import NewCommentBadge from "./icons/new-comment-badge.svg";
 import ViewClass from "./view-class-work/view-class";
 import ShareModal from "./share-modal";
 import ToggleButton from "./toggle-button";
@@ -108,22 +109,39 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
       const shareIcon = currentUserIsShared ? <ButtonUnShareIcon /> : <ButtonShareIcon />;
       const shareTip = currentUserIsShared ? "Stop sharing" : "Share this";
       const viewTip = "View class work";
+
+      let hasNewComments = false;
+      const currentUser = sharedClassData.students.find(s => s.isCurrentUser);
+      if (currentUser && currentUserIsShared) {
+        const lastSeen = currentUser.lastCommentSeen;
+        hasNewComments = !currentUser.commentsReceived.every(comment => {
+          return comment.time < lastSeen;
+        });
+      }
+
       return (
         <div className={headerClass} style={{width: interactiveWidth}}>
-          <ToggleButton
-            onClick={this.toggleShared}
-            enabled={interactiveAvailable}
-            tip={shareTip}
-          >
-            {shareIcon}
-          </ToggleButton>
-          <ToggleButton
-            onClick={this.toggleShowView}
-            enabled={interactiveAvailable && currentUserIsShared}
-            tip={viewTip}
-          >
-            <ViewClassIcon/>
-          </ToggleButton>
+          <div className={css.icons}>
+            <ToggleButton
+              onClick={this.toggleShared}
+              enabled={interactiveAvailable}
+              tip={shareTip}
+            >
+              {shareIcon}
+            </ToggleButton>
+            <ToggleButton
+              onClick={this.toggleShowView}
+              enabled={interactiveAvailable && currentUserIsShared}
+              tip={viewTip}
+            >
+              <ViewClassIcon/>
+              {
+                hasNewComments ?
+                  <NewCommentBadge className={css.newCommentBadge} /> :
+                  null
+              }
+            </ToggleButton>
+          </div>
         </div>
       );
     }

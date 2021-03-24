@@ -2,11 +2,13 @@ import * as React from "react";
 import * as css from "./toggle-button.sass";
 import * as ReactTooltip from "react-tooltip";
 
+type MaybeElement = JSX.Element | null;
+
 interface IToggleButtonProps {
   onClick: (() => void) | undefined;
   enabled: boolean;
   tip: string;
-  children: string[] | JSX.Element[] | JSX.Element | undefined;
+  children: string[] | MaybeElement[] | JSX.Element | undefined;
 }
 
 const ToggleButton = (props: IToggleButtonProps) => {
