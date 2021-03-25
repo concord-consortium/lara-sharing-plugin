@@ -22,6 +22,7 @@ export const LeftNav = (props: ILeftNavProps) => {
 
   const newCommentLineRef = useRef<HTMLDivElement>(null);
   const lastCommentRef = useRef<HTMLDivElement>(null);
+  const textBoxRef = useRef<HTMLTextAreaElement>(null);
 
   const currentUserId = sharedClassData.students.find(s => s.isCurrentUser)?.userId;
   const selectedStudent = sharedClassData.students.find(s => s.userId === selectedStudentId);
@@ -73,11 +74,15 @@ export const LeftNav = (props: ILeftNavProps) => {
     if (selectedStudentId) {
       store.markCommentsRead(selectedStudentId);
     }
+    if (!selectedStudent || !selectedStudent.commentsReceived.length || !lastCommentRef.current || !textBoxRef.current) return;
+
     // if our own comment is the last one, scroll to it
-    if (selectedStudent
-        && selectedStudent.commentsReceived.length > 0
-        && selectedStudent.commentsReceived[selectedStudent.commentsReceived.length - 1].sender === currentUserId
-        && lastCommentRef.current) {
+    const ownCommentIsLast = selectedStudent.commentsReceived[selectedStudent.commentsReceived.length - 1].sender === currentUserId;
+    // or if the previous message is in view
+    const lastCommentBox = lastCommentRef.current.getBoundingClientRect();
+    const inputBox = textBoxRef.current.getBoundingClientRect();
+    const previousMessageInView = lastCommentBox.y - inputBox.y < lastCommentBox.height;
+    if (ownCommentIsLast || previousMessageInView)   {
       lastCommentRef.current.scrollIntoView()
     }
   }, [currentStudentCommentsLength, lastCommentRef.current]);
@@ -189,6 +194,7 @@ export const LeftNav = (props: ILeftNavProps) => {
             value={newComment}
             onChange={handleNewCommentChange}
             disabled={!selectedStudent}
+            ref={textBoxRef}
           />
           <button className={css.submitButton}
               onClick={handleSendComment}
