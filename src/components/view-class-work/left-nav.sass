@@ -125,6 +125,7 @@
       background-color: $cc-teal-light-6
       border: 1.5px solid $cc-charcoal-light-1
       border-radius: $button-radius
+      cursor: pointer
 
       svg
         margin-right: 5px
@@ -134,10 +135,15 @@
         font-size: 15px
         font-weight: bold
 
-      &:hover
+      &:hover:enabled
         background-color: $cc-teal-light-4
-      &:active
+      &:active:enabled
         color: white
         background-color: $cc-teal
         svg
           fill: white
+      &:disabled
+        background-color: $cc-charcoal-light-3
+        cursor: auto
+        svg
+          fill: $cc-charcoal-light-1

@@ -128,6 +128,8 @@ export const LeftNav = (props: ILeftNavProps) => {
     }
   }, [currentUserId, newCommentLineRef.current, lastCommentRef.current]);
 
+  const submitEnabled = selectedStudent && newComment;
+
   return (
     <div className={css.leftNav}>
       {showingDeleteConfirm &&
@@ -189,7 +191,7 @@ export const LeftNav = (props: ILeftNavProps) => {
           />
           <button className={css.submitButton}
               onClick={handleSendComment}
-              disabled={!selectedStudent}>
+              disabled={!submitEnabled}>
             <IconSend />
             <div>Post comment</div>
           </button>
