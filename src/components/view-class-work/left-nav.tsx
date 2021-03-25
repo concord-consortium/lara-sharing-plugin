@@ -75,6 +75,7 @@ export const LeftNav = (props: ILeftNavProps) => {
     }
     // if our own comment is the last one, scroll to it
     if (selectedStudent
+        && selectedStudent.commentsReceived.length > 0
         && selectedStudent.commentsReceived[selectedStudent.commentsReceived.length - 1].sender === currentUserId
         && lastCommentRef.current) {
       lastCommentRef.current.scrollIntoView()
