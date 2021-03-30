@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { CommentReceived, SharedClassData, store } from "../../stores/firestore";
 import { SplitPane } from "../split-pane";
 import IconAccountId from "../icons/account-id-badge.svg";
@@ -20,7 +20,6 @@ export const LeftNav = (props: ILeftNavProps) => {
   const {sharedClassData, selectedStudentId, onSelectStudent} = props;
   if (!sharedClassData) return null;
 
-  const newCommentLineRef = useRef<HTMLDivElement>(null);
   const lastCommentRef = useRef<HTMLDivElement>(null);
   const textBoxRef = useRef<HTMLTextAreaElement>(null);
 
@@ -76,9 +75,9 @@ export const LeftNav = (props: ILeftNavProps) => {
     }
     if (!selectedStudent || !selectedStudent.commentsReceived.length || !lastCommentRef.current || !textBoxRef.current) return;
 
-    // if our own comment is the last one, scroll to it
+    // if our own comment is the last one...
     const ownCommentIsLast = selectedStudent.commentsReceived[selectedStudent.commentsReceived.length - 1].sender === currentUserId;
-    // or if the previous message is in view
+    // ...or if the previously last-message is in view, scroll to the last message
     const lastCommentBox = lastCommentRef.current.getBoundingClientRect();
     const inputBox = textBoxRef.current.getBoundingClientRect();
     const previousMessageInView = lastCommentBox.y - inputBox.y < lastCommentBox.height;
@@ -111,6 +110,15 @@ export const LeftNav = (props: ILeftNavProps) => {
     );
   });
 
+  // if a new comment line is created (only possible when we switch to new student), scroll to that line
+  const newCommentLineRef = useCallback(node => {
+    if (node !== null) {
+      setTimeout(() => {
+        node.scrollIntoView();
+      }, 10);
+    }
+  }, []);
+
   // add new comment line
   let firstNewCommentIndex = -1;
   if (selectedStudent) {
@@ -122,17 +130,8 @@ export const LeftNav = (props: ILeftNavProps) => {
     }
   }
   if (commentList && commentList.length > 0 && firstNewCommentIndex > 0) {
-    commentList.splice(firstNewCommentIndex, 0, <div className={css.newCommentLine} ref={newCommentLineRef} />);
+    commentList.splice(firstNewCommentIndex, 0, <div className={css.newCommentLine} key={"new-line"} ref={newCommentLineRef} />);
   }
-
-  // when new user is selected, scroll to new comment line if there is one, or the bottom if there are no new comments
-  useEffect(() => {
-    if (newCommentLineRef.current) {
-      newCommentLineRef.current.scrollIntoView()
-    } else if (firstNewCommentIndex === -1 && lastCommentRef.current) {
-      lastCommentRef.current.scrollIntoView()
-    }
-  }, [currentUserId, newCommentLineRef.current, lastCommentRef.current]);
 
   const submitEnabled = selectedStudent && newComment;
 
