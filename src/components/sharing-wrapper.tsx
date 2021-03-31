@@ -36,6 +36,8 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
     interactiveWidth: "100%"
   };
 
+  storeInitialized = false;
+
   private cancelListener: FirestoreStoreCancelListener;
   private wrappedEmbeddableDivContainer = React.createRef<HTMLDivElement>();
 
@@ -65,6 +67,19 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
     observer.observe(wrappedEmbeddableDiv, observerConfig);
   }
 
+  public setupStore() {
+    if (!this.storeInitialized && this.props.store != null) {
+      this.cancelListener = this.props.store.listen((sharedClassData) => {
+        this.setState({ sharedClassData });
+      });
+
+      this.handleInteractiveAvailable(this.props.store.interactiveAvailable);
+      this.props.store.listenForInteractiveAvailable(this.handleInteractiveAvailable);
+
+      this.storeInitialized = true;
+    }
+  }
+
   public componentDidMount() {
     const { wrappedEmbeddableDiv } = this.props;
     if (!wrappedEmbeddableDiv) {
@@ -73,19 +88,13 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
     const containerNode = this.wrappedEmbeddableDivContainer.current!;
     containerNode.appendChild(wrappedEmbeddableDiv);
 
+    this.setupStore();
     this.observeWrappedInteractiveSize();
   }
 
   public componentDidUpdate(prevProps: ISharingWrapperProps) {
-    // Setup communication with store when it becomes available.
-    if (prevProps.store === null && this.props.store != null) {
-      this.cancelListener = this.props.store.listen((sharedClassData) => {
-        this.setState({ sharedClassData });
-      });
-
-      this.handleInteractiveAvailable(this.props.store.interactiveAvailable);
-      this.props.store.listenForInteractiveAvailable(this.handleInteractiveAvailable);
-    }
+    // Setup communication with store if it becomes available later.
+    this.setupStore();
   }
 
   public render() {
