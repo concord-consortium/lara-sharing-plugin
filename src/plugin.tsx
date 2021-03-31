@@ -43,6 +43,17 @@ export class LaraSharingPlugin {
     this.context = context;
     this.authoredState = getAuthoredState(context);
 
+
+    // Initial render, done as fast as possible, to re-add embedded interactive iframe before LARA starts
+    // communication with it. Workaround for: https://www.pivotaltracker.com/story/show/177568401
+    ReactDOM.render(
+      <PluginApp
+        authoredState={this.authoredState}
+        wrappedEmbeddableDiv={this.context.wrappedEmbeddable && this.context.wrappedEmbeddable.container}
+        store={null}
+      />,
+      this.context.container);
+
     const firebasePromise = context.getFirebaseJwt(this.authoredState.firebaseAppName || DefaultFirebaseAppName);
     const classInfoPromise = context.getClassInfo();
     const interactiveStatePromise = context.wrappedEmbeddable.getInteractiveState();
