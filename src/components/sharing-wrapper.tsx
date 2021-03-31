@@ -14,7 +14,7 @@ import { SharedClassData, FirestoreStore, FirestoreStoreCancelListener,  } from 
 export interface ISharingWrapperProps {
   authoredState: IAuthoredState;
   wrappedEmbeddableDiv: HTMLElement | null;
-  store: FirestoreStore;
+  store: FirestoreStore | null;
 }
 
 interface IState {
@@ -36,17 +36,10 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
     interactiveWidth: "100%"
   };
 
+  storeInitialized = false;
+
   private cancelListener: FirestoreStoreCancelListener;
   private wrappedEmbeddableDivContainer = React.createRef<HTMLDivElement>();
-
-  public componentWillMount() {
-    this.cancelListener = this.props.store.listen((sharedClassData) => {
-      this.setState({sharedClassData});
-    });
-
-    this.handleInteractiveAvailable(this.props.store.interactiveAvailable);
-    this.props.store.listenForInteractiveAvailable(this.handleInteractiveAvailable);
-  }
 
   public componentWillUnmount() {
     this.cancelListener();
@@ -74,6 +67,19 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
     observer.observe(wrappedEmbeddableDiv, observerConfig);
   }
 
+  public setupStore() {
+    if (!this.storeInitialized && this.props.store != null) {
+      this.cancelListener = this.props.store.listen((sharedClassData) => {
+        this.setState({ sharedClassData });
+      });
+
+      this.handleInteractiveAvailable(this.props.store.interactiveAvailable);
+      this.props.store.listenForInteractiveAvailable(this.handleInteractiveAvailable);
+
+      this.storeInitialized = true;
+    }
+  }
+
   public componentDidMount() {
     const { wrappedEmbeddableDiv } = this.props;
     if (!wrappedEmbeddableDiv) {
@@ -82,7 +88,13 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
     const containerNode = this.wrappedEmbeddableDivContainer.current!;
     containerNode.appendChild(wrappedEmbeddableDiv);
 
+    this.setupStore();
     this.observeWrappedInteractiveSize();
+  }
+
+  public componentDidUpdate(prevProps: ISharingWrapperProps) {
+    // Setup communication with store if it becomes available later.
+    this.setupStore();
   }
 
   public render() {
@@ -95,7 +107,7 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
         <div ref={this.wrappedEmbeddableDivContainer} />
         {this.renderIcons()}
         {showShareModal ? <ShareModal onClose={this.handleCloseShowModal} sharedClassData={sharedClassData} /> : null}
-        {showViewClass ? <ViewClass onClose={this.handleCloseViewClass} store={store} sharedClassData={sharedClassData} /> : null}
+        {store && showViewClass ? <ViewClass onClose={this.handleCloseViewClass} store={store} sharedClassData={sharedClassData} /> : null}
       </div>
     );
   }
@@ -149,14 +161,15 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
 
   private toggleShared = () => {
     const { sharedClassData } = this.state;
-    if (!sharedClassData) {
+    const { store } = this.props;
+    if (!sharedClassData || !store) {
       return;
     }
     const { type } = sharedClassData;
-    const { getReportingUrl } = this.props.store;
+    const { getReportingUrl } = store;
 
     const toggleShare = (iframeUrl: string) => {
-      const shared = this.props.store.toggleShare(iframeUrl);
+      const shared = store.toggleShare(iframeUrl);
       if (shared && !this.state.dontShowShareModal) {
         this.setState({showShareModal: true});
       }

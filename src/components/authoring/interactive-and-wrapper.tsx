@@ -8,7 +8,7 @@ import { FirestoreStore } from "../../stores/firestore";
 interface IProps {
   authoredState: IAuthoredState;
   updateFunction?: (nextState: ISharingWrapperProps) => void;
-  store: FirestoreStore;
+  store: FirestoreStore | null;
 }
 
 interface IState {}

@@ -7,7 +7,7 @@ interface IProps {
   authoredState: IAuthoredState;
   wrappedEmbeddableDiv: HTMLElement | null;
   wrappedEmbeddableContext?: object;
-  store: FirestoreStore;
+  store: FirestoreStore | null;
 }
 
 interface IState {}
