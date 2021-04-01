@@ -26,7 +26,19 @@ export const LeftNav = (props: ILeftNavProps) => {
   const currentUserId = sharedClassData.students.find(s => s.isCurrentUser)?.userId;
   const selectedStudent = sharedClassData.students.find(s => s.userId === selectedStudentId);
 
+  /**
+   * The logic for showing the new message line is a little confusing. If new messages come in while the student is not
+   * looking at the message list, and the student now switches to the message list, we want to show the new messages
+   * line. We never want to show the new message line at the very top or very bottom.
+   * While the student is currently on the message list, we don't want the new message line to move, *unless* the user
+   * sends a message, in which case we clear it.
+   * The trickiest part is that if a student arrives at a message list and has previously read all of them, the
+   * selectedStudentPreviousReadTime will be set to the time of the last message. But if a new message comes in, we
+   * don't want to add a new message line. So we need an additional property, noCommentLineOnInitialLoad, to keep track
+   * of this.
+   */
   const [selectedStudentPreviousReadTime, setSelectedStudentPreviousReadTime] = useState(0);
+  const [noCommentLineOnInitialLoad, setNoCommentLineOnInitialLoad] = useState(false);
 
   const handleSelectStudent = (studentId: string) => {
     return () => {
@@ -37,11 +49,13 @@ export const LeftNav = (props: ILeftNavProps) => {
       }
       // then send to db that we have read the new student's comments
       store.markCommentsRead(studentId);
+      setNoCommentLineOnInitialLoad(false);
       // then select student and display any comments
       onSelectStudent(studentId);
     }
   }
 
+  // comment input box
   const [newComment, setNewComment] = useState("");
   const handleNewCommentChange = (e: ChangeEvent<HTMLTextAreaElement>) => setNewComment(e.target.value)
   const handleSendComment = () => {
@@ -51,6 +65,7 @@ export const LeftNav = (props: ILeftNavProps) => {
     setSelectedStudentPreviousReadTime(-1);
   };
 
+  // comment deletion
   const [commentToBeDeleted, setCommentToBeDeleted] = useState<CommentReceived | null>(null);
   const [showingDeleteConfirm, setShowingDeleteConfirm] = useState(false);
   const handleConfirmDelete = () => {
@@ -67,6 +82,8 @@ export const LeftNav = (props: ILeftNavProps) => {
     }
   };
 
+  // when a new comment comes in, we mark comments as read in the DB (though the selectedStudentPreviousReadTime doesn't
+  // change, so the new-comment line remains in place). We also scroll to the last message if appropriate.
   const currentStudentCommentsLength = selectedStudent ? selectedStudent.commentsReceived.length : 0;
   useEffect(() => {
     // each time select student's comment list changes, mark as read
@@ -119,18 +136,23 @@ export const LeftNav = (props: ILeftNavProps) => {
     }
   }, []);
 
-  // add new comment line
+  // add new comment line if needed. If noCommentLineOnInitialLoad is set, that means we have already been viewing this
+  // comment list and there wasn't a new-comment line before, so don't add one now
   let firstNewCommentIndex = -1;
-  if (selectedStudent) {
+  if (selectedStudent && !noCommentLineOnInitialLoad) {
     for (let i = 0; i < selectedStudent.commentsReceived.length; i++) {
       if (selectedStudent.commentsReceived[i].time > selectedStudentPreviousReadTime) {
         firstNewCommentIndex = i;
         break;
       }
     }
-  }
-  if (commentList && commentList.length > 0 && firstNewCommentIndex > 0) {
-    commentList.splice(firstNewCommentIndex, 0, <div className={css.newCommentLine} key={"new-line"} ref={newCommentLineRef} />);
+    if (commentList && commentList.length > 0 && firstNewCommentIndex > 0) {
+      commentList.splice(firstNewCommentIndex, 0, <div className={css.newCommentLine} key={"new-line"} ref={newCommentLineRef} />);
+    }
+
+    if (firstNewCommentIndex < 1) {
+      setNoCommentLineOnInitialLoad(true);
+    }
   }
 
   const submitEnabled = selectedStudent && newComment;
