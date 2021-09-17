@@ -168,8 +168,8 @@ export class SharingWrapper extends React.Component<ISharingWrapperProps, IState
     const { type } = sharedClassData;
     const { getReportingUrl } = store;
 
-    const toggleShare = (iframeUrl: string) => {
-      const shared = store.toggleShare(iframeUrl);
+    const toggleShare = async (iframeUrl: string) => {
+      const shared = await store.toggleShare(iframeUrl);
       if (shared && !this.state.dontShowShareModal) {
         this.setState({showShareModal: true});
       }

@@ -43,6 +43,7 @@ export const getFireStoreParams = (
     const onInteractiveAvailableFillIn = (handler: PluginAPI.IInteractiveAvailableEventHandler) => {};
     const onInteractiveAvailable = context.wrappedEmbeddable ? context.wrappedEmbeddable.onInteractiveAvailable : onInteractiveAvailableFillIn;
     const getReportingUrl = context.wrappedEmbeddable ? context.wrappedEmbeddable.getReportingUrl : () => new Promise<null>(resolve => resolve(null));
+    const setAnswerSharedWithClass = context.wrappedEmbeddable?.setAnswerSharedWithClass || (() => Promise.reject("Sharing not supported"));
     // ADD
     classInfo.students.forEach( (student) => {
       const key = portalUserPathToFirebaseId(student.id);
@@ -61,7 +62,8 @@ export const getFireStoreParams = (
       classHash,
       onInteractiveAvailable,
       interactiveAvailable,
-      getReportingUrl
+      getReportingUrl,
+      setAnswerSharedWithClass
     };
     return params;
 };
