@@ -66,7 +66,7 @@ export interface InitLaraFirestoreParams {
   interactiveAvailable: boolean;
   onInteractiveAvailable: (handler: PluginAPI.IInteractiveAvailableEventHandler) => void;
   getReportingUrl: () => Promise<string | null> | null;
-  setAnswerSharedWithClass: (enabled: boolean) => Promise<Response>;
+  setAnswerSharedWithClass: (enabled: boolean) => Promise<void>;
 }
 
 export type InitFirestoreParams = InitDemoFirestoreParams | InitTestFirestoreParams | InitLaraFirestoreParams;
@@ -86,7 +86,7 @@ export class FirestoreStore {
   public readonly type: "demo" | "test" | "lara";
   public interactiveAvailable: boolean = true;
   public getReportingUrl: () => Promise<string | null> | null;
-  public setAnswerSharedWithClass: (enabled: boolean) => Promise<Response>;
+  public setAnswerSharedWithClass: (enabled: boolean) => Promise<void>;
   private initialized: boolean;
   private listeners: FirestoreStoreListener[];
   private db: firebase.firestore.Firestore;
@@ -198,10 +198,7 @@ export class FirestoreStore {
 
   public async share(iframeUrl: string) {
     this.ensureInitalized();
-    const response = await this.setAnswerSharedWithClass(true);
-    if (response.status !== 200) {
-      throw new Error("Answer sharing has failed");
-    }
+    await this.setAnswerSharedWithClass(true);
     if (this.currentUser) {
       const { userId } = this.currentUser;
 
@@ -227,10 +224,7 @@ export class FirestoreStore {
 
   public async unshare() {
     this.ensureInitalized();
-    const response = await this.setAnswerSharedWithClass(false);
-    if (response.status !== 200) {
-      throw new Error("Answer unsharing has failed");
-    }
+    await this.setAnswerSharedWithClass(false);
     if (this.currentUser) {
       return this.db.runTransaction((transaction) => {
         // if the model has been shared, unsharing simply means wiping the iframeUrl.
