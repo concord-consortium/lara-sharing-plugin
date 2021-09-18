@@ -56,13 +56,11 @@ export class LaraSharingPlugin {
 
     const firebasePromise = context.getFirebaseJwt(this.authoredState.firebaseAppName || DefaultFirebaseAppName);
     const classInfoPromise = context.getClassInfo();
-    const interactiveStatePromise = context.wrappedEmbeddable.getInteractiveState();
-    if (firebasePromise && classInfoPromise && interactiveStatePromise) {
-      Promise.all([ firebasePromise, classInfoPromise, interactiveStatePromise])
-      .then( ([jwtResponse, classInfo, interactiveState]) => {
-        const config = getFireStoreParams(context, jwtResponse, classInfo, interactiveState);
+    if (firebasePromise && classInfoPromise) {
+      Promise.all([ firebasePromise, classInfoPromise])
+      .then( ([jwtResponse, classInfo]) => {
+        const config = getFireStoreParams(context, jwtResponse, classInfo);
         // tslint:disable-next-line:no-console
-        console.log(config);
         store.init(config)
           .then(() => this.renderPluginApp())
           .catch((err) => alert(err.toString()));
@@ -89,7 +87,6 @@ export class LaraSharingAuthoringPlugin {
   public context: PluginAPI.IPluginAuthoringContext;
   public authoredState: IAuthoredState;
   public pluginAppComponent: any;
-  private currentFirebaseAppName?: string;
 
   constructor(context: PluginAPI.IPluginAuthoringContext) {
     this.context = context;
