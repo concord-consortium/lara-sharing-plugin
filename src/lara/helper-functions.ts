@@ -25,8 +25,7 @@ const getDisplayName = (student: PluginAPI.IUser): string => {
 export const getFireStoreParams = (
   context: PluginAPI.IPluginRuntimeContext,
   jwt: PluginAPI.IJwtResponse,
-  classInfo: PluginAPI.IClassInfo,
-  interactiveState: PluginAPI.IInteractiveState
+  classInfo: PluginAPI.IClassInfo
 ): InitLaraFirestoreParams => {
     const claims = (jwt.claims as PluginAPI.IJwtClaims);
     const rawFirebaseJWT = jwt.token;
@@ -36,13 +35,14 @@ export const getFireStoreParams = (
     const pluginId = context.pluginId.toString();
     const portalUserId = portalUserPathToFirebaseId(portalClaims.user_id);
     const userMap: SharedClassUserMap = {};
-    const interactiveName = interactiveState.interactive_name;
+    const interactiveName = context.wrappedEmbeddable?.laraJson.name;
     const classHash = classInfo.class_hash;
     const interactiveAvailable = context.wrappedEmbeddable ? context.wrappedEmbeddable.interactiveAvailable : true;
     // tslint:disable-next-line:no-empty
     const onInteractiveAvailableFillIn = (handler: PluginAPI.IInteractiveAvailableEventHandler) => {};
     const onInteractiveAvailable = context.wrappedEmbeddable ? context.wrappedEmbeddable.onInteractiveAvailable : onInteractiveAvailableFillIn;
     const getReportingUrl = context.wrappedEmbeddable ? context.wrappedEmbeddable.getReportingUrl : () => new Promise<null>(resolve => resolve(null));
+    const setAnswerSharedWithClass = context.wrappedEmbeddable?.setAnswerSharedWithClass || (() => Promise.reject("Sharing not supported"));
     // ADD
     classInfo.students.forEach( (student) => {
       const key = portalUserPathToFirebaseId(student.id);
@@ -61,7 +61,8 @@ export const getFireStoreParams = (
       classHash,
       onInteractiveAvailable,
       interactiveAvailable,
-      getReportingUrl
+      getReportingUrl,
+      setAnswerSharedWithClass
     };
     return params;
 };

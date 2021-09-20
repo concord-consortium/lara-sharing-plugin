@@ -66,6 +66,7 @@ export interface InitLaraFirestoreParams {
   interactiveAvailable: boolean;
   onInteractiveAvailable: (handler: PluginAPI.IInteractiveAvailableEventHandler) => void;
   getReportingUrl: () => Promise<string | null> | null;
+  setAnswerSharedWithClass: (enabled: boolean) => Promise<void>;
 }
 
 export type InitFirestoreParams = InitDemoFirestoreParams | InitTestFirestoreParams | InitLaraFirestoreParams;
@@ -85,6 +86,7 @@ export class FirestoreStore {
   public readonly type: "demo" | "test" | "lara";
   public interactiveAvailable: boolean = true;
   public getReportingUrl: () => Promise<string | null> | null;
+  public setAnswerSharedWithClass: (enabled: boolean) => Promise<void>;
   private initialized: boolean;
   private listeners: FirestoreStoreListener[];
   private db: firebase.firestore.Firestore;
@@ -120,7 +122,7 @@ export class FirestoreStore {
         params.type === "test" ? "Test Interactive" :
         params.interactiveName
       );
-      const classData: SharedClassData = this.classData = {
+      this.classData = {
         type: params.type,
         currentUserIsShared: false,
         interactiveName,
@@ -145,6 +147,7 @@ export class FirestoreStore {
 
         case "lara":
           this.getReportingUrl = params.getReportingUrl;
+          this.setAnswerSharedWithClass = params.setAnswerSharedWithClass;
 
           this.interactiveAvailable = params.interactiveAvailable;
           params.onInteractiveAvailable(this.handleInteractiveAvailable);
@@ -178,23 +181,24 @@ export class FirestoreStore {
     };
   }
 
-  public toggleShare(iframeUrl: string) {
+  public async toggleShare(iframeUrl: string) {
     this.ensureInitalized();
     if (this.classData) {
       if (this.classData.currentUserIsShared) {
-        this.unshare();
+        await this.unshare();
         return false;
       }
       else {
-        this.share(iframeUrl);
+        await this.share(iframeUrl);
         return true;
       }
     }
     return false;
   }
 
-  public share(iframeUrl: string) {
+  public async share(iframeUrl: string) {
     this.ensureInitalized();
+    await this.setAnswerSharedWithClass(true);
     if (this.currentUser) {
       const { userId } = this.currentUser;
 
@@ -218,8 +222,9 @@ export class FirestoreStore {
     }
   }
 
-  public unshare() {
+  public async unshare() {
     this.ensureInitalized();
+    await this.setAnswerSharedWithClass(false);
     if (this.currentUser) {
       return this.db.runTransaction((transaction) => {
         // if the model has been shared, unsharing simply means wiping the iframeUrl.
