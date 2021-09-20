@@ -153,6 +153,7 @@ export class FirestoreStore {
 
       switch (params.type) {
         case "demo":
+          this.setAnswerSharedWithClass = () => Promise.resolve();
           firestoreLogin()
             .then(() => {
               const studentDemoData = this.createDemoData();
