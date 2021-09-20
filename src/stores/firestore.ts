@@ -82,6 +82,35 @@ export type FirestoreStoreCancelListener = () => void;
 
 export type InteractiveAvailableListener = (available: boolean) => void;
 
+firebase.initializeApp(FirebaseConfig);
+const db = firebase.firestore();
+const settings = {};
+db.settings(settings);
+let firestoreLoginPromise: Promise<void>;
+
+const firestoreLogin = (rawFirebaseJWT?: string) => {
+  if (!firestoreLoginPromise) {
+    firestoreLoginPromise = new Promise<void>((resolve, reject) => {
+      firebase.auth().signOut().then(() => {
+        firebase.auth().onAuthStateChanged((firebaseUser) => {
+          if (firebaseUser) {
+            resolve();
+          }
+        });
+
+        if (rawFirebaseJWT) {
+          firebase.auth().signInWithCustomToken(rawFirebaseJWT).catch(reject);
+        }
+        else {
+          firebase.auth().signInAnonymously().catch(reject);
+        }
+      })
+      .catch(reject);
+    });
+  }
+  return firestoreLoginPromise;
+}
+
 export class FirestoreStore {
   public readonly type: "demo" | "test" | "lara";
   public interactiveAvailable: boolean = true;
@@ -89,7 +118,6 @@ export class FirestoreStore {
   public setAnswerSharedWithClass: (enabled: boolean) => Promise<void>;
   private initialized: boolean;
   private listeners: FirestoreStoreListener[];
-  private db: firebase.firestore.Firestore;
   private classData: SharedClassData | null;
   private currentUser: CurrentUserInfo | null;
   private userMap: SharedClassUserMap;
@@ -102,12 +130,6 @@ export class FirestoreStore {
     this.currentUser = null;
     this.userMap = {};
     this.interactiveAvailableListeners = [];
-
-    firebase.initializeApp(FirebaseConfig);
-
-    this.db = firebase.firestore();
-    const settings = {};
-    this.db.settings(settings);
   }
 
   public init(params: InitFirestoreParams) {
@@ -131,7 +153,7 @@ export class FirestoreStore {
 
       switch (params.type) {
         case "demo":
-          this.login()
+          firestoreLogin()
             .then(() => {
               const studentDemoData = this.createDemoData();
               this.listenForChanges(studentDemoData).then(resolve).catch(reject);
@@ -152,13 +174,13 @@ export class FirestoreStore {
           this.interactiveAvailable = params.interactiveAvailable;
           params.onInteractiveAvailable(this.handleInteractiveAvailable);
 
-          this.login(params.rawFirebaseJWT)
+          firestoreLogin(params.rawFirebaseJWT)
             .then(() => {
               this.userMap = params.userMap;
               const userId = params.portalUserId;
               const portalDomain = params.portalDomain.replace(/\//g, "-");
               const path = `portals/${portalDomain}/classes/${params.classHash}/offerings/${params.offeringId}/plugins/${params.pluginId}/studentData`;
-              const pluginData = this.db.collection(path);
+              const pluginData = db.collection(path);
               this.currentUser = {
                 userId,
                 displayName: params.userMap[userId] || "Unknown User",
@@ -202,7 +224,7 @@ export class FirestoreStore {
     if (this.currentUser) {
       const { userId } = this.currentUser;
 
-      return this.db.runTransaction((transaction) => {
+      return db.runTransaction((transaction) => {
         // if the model has been shared once before, we just want to update the iframeUrl
         return transaction.get(this.currentUser!.docRef).then((doc) => {
           if (doc.exists) {
@@ -226,7 +248,7 @@ export class FirestoreStore {
     this.ensureInitalized();
     await this.setAnswerSharedWithClass(false);
     if (this.currentUser) {
-      return this.db.runTransaction((transaction) => {
+      return db.runTransaction((transaction) => {
         // if the model has been shared, unsharing simply means wiping the iframeUrl.
         // comments from the user and to the user are preserved
         return transaction.get(this.currentUser!.docRef).then((doc) => {
@@ -374,28 +396,8 @@ export class FirestoreStore {
     });
   }
 
-  private login(rawFirebaseJWT?: string) {
-    return new Promise<void>((resolve, reject) => {
-      firebase.auth().signOut().then(() => {
-        firebase.auth().onAuthStateChanged((firebaseUser) => {
-          if (firebaseUser) {
-            resolve();
-          }
-        });
-
-        if (rawFirebaseJWT) {
-          firebase.auth().signInWithCustomToken(rawFirebaseJWT).catch(reject);
-        }
-        else {
-          firebase.auth().signInAnonymously().catch(reject);
-        }
-      })
-      .catch(reject);
-    });
-  }
-
   private createDemoData() {
-    const studentDemoData = this.db.collection("studentDemoData");
+    const studentDemoData = db.collection("studentDemoData");
 
     // delete the current user's demo data
     let userId = "1@demo";
@@ -508,5 +510,3 @@ export class FirestoreStore {
   }
 
 }
-
-export const store = new FirestoreStore();

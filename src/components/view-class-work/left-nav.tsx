@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
-import { CommentReceived, SharedClassData, store } from "../../stores/firestore";
+import { CommentReceived, FirestoreStore, SharedClassData } from "../../stores/firestore";
 import { SplitPane } from "../split-pane";
 import IconAccountId from "../icons/account-id-badge.svg";
 import IconAccountIdPosted from "../icons/account-id-badge-posted.svg";
@@ -14,10 +14,11 @@ export interface ILeftNavProps {
   sharedClassData: SharedClassData | null;
   selectedStudentId: string | null;
   onSelectStudent: (selectedStudent: string) => void;
+  store: FirestoreStore;
 }
 
 export const LeftNav = (props: ILeftNavProps) => {
-  const {sharedClassData, selectedStudentId, onSelectStudent} = props;
+  const {sharedClassData, selectedStudentId, onSelectStudent, store} = props;
   if (!sharedClassData) return null;
 
   const lastCommentRef = useRef<HTMLDivElement>(null);

@@ -4,8 +4,9 @@ import {
   ISharingWrapperProps
 } from "./sharing-wrapper";
 import { render } from "enzyme";
-import { store } from "../stores/firestore";
-const testingText =  "Hello World!";
+import { FirestoreStore } from "../stores/firestore";
+
+const store = new FirestoreStore();
 
 const props: ISharingWrapperProps = {
   authoredState: {

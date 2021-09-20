@@ -3,11 +3,12 @@ import * as ReactDOM from "react-dom";
 
 import { IAuthoredState} from "./types";
 import InteractiveAndWrapper from "./components/authoring/interactive-and-wrapper";
-import { store } from "./stores/firestore";
+import { FirestoreStore } from "./stores/firestore";
 
 const authoredState: IAuthoredState = {
 };
 
+const store = new FirestoreStore();
 store.init({type: "demo"})
   .then(() => {
     ReactDOM.render(
