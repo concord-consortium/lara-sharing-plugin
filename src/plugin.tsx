@@ -4,7 +4,7 @@ import PluginApp from "./components/plugin-app";
 import PluginConfig from "./config/plugin-config";
 import { DefaultFirebaseAppName } from "./config/plugin-config";
 import { IAuthoredState } from "./types";
-import { store } from "./stores/firestore";
+import { FirestoreStore } from "./stores/firestore";
 import {
   getFireStoreParams
 } from "./lara/helper-functions";
@@ -31,6 +31,7 @@ export class LaraSharingPlugin {
   public context: PluginAPI.IPluginRuntimeContext;
   public authoredState: IAuthoredState;
   public pluginAppComponent: any;
+  public store: FirestoreStore;
 
   constructor(context: PluginAPI.IPluginRuntimeContext) {
     const errMsg = "Plugin context is incorrect, the plugin instance has been configured incorrectly.";
@@ -42,7 +43,7 @@ export class LaraSharingPlugin {
 
     this.context = context;
     this.authoredState = getAuthoredState(context);
-
+    this.store = new FirestoreStore();
 
     // Initial render, done as fast as possible, to re-add embedded interactive iframe before LARA starts
     // communication with it. Workaround for: https://www.pivotaltracker.com/story/show/177568401
@@ -61,7 +62,7 @@ export class LaraSharingPlugin {
       .then( ([jwtResponse, classInfo]) => {
         const config = getFireStoreParams(context, jwtResponse, classInfo);
         // tslint:disable-next-line:no-console
-        store.init(config)
+        this.store.init(config)
           .then(() => this.renderPluginApp())
           .catch((err) => alert(err.toString()));
       });
@@ -77,7 +78,7 @@ export class LaraSharingPlugin {
       <PluginApp
         authoredState={authoredState}
         wrappedEmbeddableDiv={this.context.wrappedEmbeddable && this.context.wrappedEmbeddable.container}
-        store={store}
+        store={this.store}
       />,
       this.context.container);
   }

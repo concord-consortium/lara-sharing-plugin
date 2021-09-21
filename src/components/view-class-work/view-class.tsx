@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as screenfull from "screenfull";
 import { LeftNav } from "./left-nav";
-import { SharedClassData, SharedStudentData, FirestoreStore } from "../../stores/firestore";
+import { SharedClassData, FirestoreStore } from "../../stores/firestore";
 
 import * as css from "./view-class.sass";
 import ViewSharedIcon from "../icons/view-shared.svg";
@@ -28,7 +28,7 @@ export class ViewClass extends React.Component<IViewClassProps, IState> {
   private iFrameRef: React.RefObject<HTMLIFrameElement> = React.createRef();
 
   public render() {
-    const { sharedClassData } = this.props;
+    const { sharedClassData, store } = this.props;
     const interactiveName = sharedClassData ? sharedClassData.interactiveName : null;
     const haveInteractiveName = (interactiveName !== null) && (interactiveName.length > 0);
 
@@ -48,6 +48,7 @@ export class ViewClass extends React.Component<IViewClassProps, IState> {
           sharedClassData={sharedClassData}
           selectedStudentId={this.state.selectedStudentId}
           onSelectStudent={this.handleSelectStudent}
+          store={store}
         />
         <div className={css.viewer}>
           {this.renderViewer()}

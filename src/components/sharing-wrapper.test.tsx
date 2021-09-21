@@ -3,9 +3,11 @@ import {
   SharingWrapper,
   ISharingWrapperProps
 } from "./sharing-wrapper";
-import { render } from "enzyme";
-import { store } from "../stores/firestore";
-const testingText =  "Hello World!";
+import { mount } from "enzyme";
+import { FirestoreStore } from "../stores/firestore";
+import ToggleButton from "./toggle-button";
+
+const store = new FirestoreStore();
 
 const props: ISharingWrapperProps = {
   authoredState: {
@@ -15,19 +17,17 @@ const props: ISharingWrapperProps = {
 };
 
 describe("Sharing Wrapper", () => {
-  it("renders two SVG buttons", () => {
+  it("renders two SVG buttons", (done) => {
     store.init({type: "test"})
     .then(() => {
-      const wrapper = render(
+      const wrapper = mount(
         <SharingWrapper
           authoredState={props.authoredState}
           wrappedEmbeddableDiv={props.wrappedEmbeddableDiv}
           store={props.store} />
       );
-      expect(wrapper.find(".wrappedHeader .button").length).toBe(2);
-    })
-    .catch((err) => {
-      throw new Error(err.toString());
+      expect(wrapper.find(ToggleButton).length).toBe(2);
+      done();
     });
   });
 });
