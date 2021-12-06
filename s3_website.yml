@@ -9,7 +9,7 @@ cloudfront_distribution_id: E1V2FSLU6NP13O
 cloudfront_invalidate_root: true
 cloudfront_wildcard_invalidation: true
 
-<% if ENV['TRAVIS_BRANCH'] == 'master' %>
+<% if ENV['BRANCH_OR_TAG'] == 'master' %>
 # in this case we are going to deploy this branch to the top level of the domain
 # so we need to ignore the version and branch folders
 ignore_on_server: ^lara-sharing-plugin/(version/|branch/)
