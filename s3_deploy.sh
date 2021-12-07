@@ -39,7 +39,7 @@ if [ "$BRANCH_OR_TAG" = "$CURRENT_TAG" ]; then
   mkdir -p _site/version
   S3_DEPLOY_DIR="version/$BRANCH_OR_TAG"
   DEPLOY_DEST="_site/$S3_DEPLOY_DIR"
-  INVAL_PATH="/version/$TRAVIS_BRANCH/index.html"
+  INVAL_PATH="/version/$BRANCH_OR_TAG/index.html"
   # used by s3_website.yml
   export S3_DEPLOY_DIR
 
