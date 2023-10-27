@@ -115,7 +115,7 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
-    "@concord-consortium/lara-plugin-api": "3.4.0-pre.2",
+    "@concord-consortium/lara-plugin-api": "3.4.0-pre.5",
     "firebase": "^8.2.9",
     "markdown-to-jsx": "^6.8.3",
     "query-string": "^6.2.0",

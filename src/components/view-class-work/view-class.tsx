@@ -7,7 +7,7 @@ import * as css from "./view-class.sass";
 import ViewSharedIcon from "../icons/view-shared.svg";
 import CloseIcon from "../icons/button-close.svg";
 import FullScreenIcon from "../icons/fullscreen.svg";
-
+import { PluginContext } from "../../hooks/use-plugin-context";
 
 export interface IViewClassProps {
   onClose: () => void;
@@ -20,6 +20,8 @@ interface IState {
 }
 
 export class ViewClass extends React.Component<IViewClassProps, IState> {
+  declare context: React.ContextType<typeof PluginContext>
+  static contextType = PluginContext;
 
   public state: IState = {
     selectedStudentId: null
@@ -31,9 +33,10 @@ export class ViewClass extends React.Component<IViewClassProps, IState> {
     const { sharedClassData, store } = this.props;
     const interactiveName = sharedClassData ? sharedClassData.interactiveName : null;
     const haveInteractiveName = (interactiveName !== null) && (interactiveName.length > 0);
+    const style: React.CSSProperties = {zIndex: this.context.startingZIndex + 100};
 
     return (
-      <div className={css.viewClass}>
+      <div className={css.viewClass} style={style}>
         <div className={css.titleBar}>
           <div className={css.titleBarContents}>
             <ViewSharedIcon className={`${css.left} ${css.icon}`} />

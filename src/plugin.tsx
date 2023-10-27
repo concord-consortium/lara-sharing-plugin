@@ -10,8 +10,8 @@ import {
 } from "./lara/helper-functions";
 import * as PluginAPI from "@concord-consortium/lara-plugin-api";
 import InlineAuthoringForm from "./components/authoring/inline-authoring-form";
+import { IPluginContext, PluginContext } from "./hooks/use-plugin-context";
 
-type IPluginContext = PluginAPI.IPluginRuntimeContext | PluginAPI.IPluginAuthoringContext;
 const getAuthoredState = (context: IPluginContext): IAuthoredState => {
   if (!context.authoredState) {
     return {};
@@ -45,14 +45,19 @@ export class LaraSharingPlugin {
     this.authoredState = getAuthoredState(context);
     this.store = new FirestoreStore();
 
+    // ensure there is a startingZIndex as it is a new part of the context and might not be supplied by the host
+    this.context.startingZIndex = this.context.startingZIndex || 50000;
+
     // Initial render, done as fast as possible, to re-add embedded interactive iframe before LARA starts
     // communication with it. Workaround for: https://www.pivotaltracker.com/story/show/177568401
     ReactDOM.render(
-      <PluginApp
-        authoredState={this.authoredState}
-        wrappedEmbeddableDiv={this.context.wrappedEmbeddable && this.context.wrappedEmbeddable.container}
-        store={null}
-      />,
+      <PluginContext.Provider value={this.context}>
+        <PluginApp
+          authoredState={this.authoredState}
+          wrappedEmbeddableDiv={this.context.wrappedEmbeddable && this.context.wrappedEmbeddable.container}
+          store={null}
+        />
+      </PluginContext.Provider>,
       this.context.container);
 
     const firebasePromise = context.getFirebaseJwt(this.authoredState.firebaseAppName || DefaultFirebaseAppName);
@@ -75,11 +80,13 @@ export class LaraSharingPlugin {
   public renderPluginApp = () => {
     const authoredState = getAuthoredState(this.context);
     this.pluginAppComponent = ReactDOM.render(
-      <PluginApp
-        authoredState={authoredState}
-        wrappedEmbeddableDiv={this.context.wrappedEmbeddable && this.context.wrappedEmbeddable.container}
-        store={this.store}
-      />,
+      <PluginContext.Provider value={this.context}>
+        <PluginApp
+          authoredState={authoredState}
+          wrappedEmbeddableDiv={this.context.wrappedEmbeddable && this.context.wrappedEmbeddable.container}
+          store={this.store}
+        />
+      </PluginContext.Provider>,
       this.context.container);
   }
 }

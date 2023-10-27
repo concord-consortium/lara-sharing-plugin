@@ -3,6 +3,7 @@ import * as css from "./share-modal.sass";
 import SharedIcon from "./icons/shared.svg";
 import CloseIcon from "./icons/button-close.svg";
 import { SharedClassData } from "../stores/firestore";
+import { PluginContext } from "../hooks/use-plugin-context";
 
 export interface IShareModalProps {
   onClose: (dontShowAgain: boolean) => void;
@@ -10,6 +11,9 @@ export interface IShareModalProps {
 }
 
 export class ShareModal extends React.Component<IShareModalProps, {}> {
+  declare context: React.ContextType<typeof PluginContext>
+  static contextType = PluginContext;
+
   private checkbox: HTMLInputElement | null;
 
   public render() {
@@ -18,9 +22,10 @@ export class ShareModal extends React.Component<IShareModalProps, {}> {
     const haveInteractiveName = (interactiveName !== null) && (interactiveName.length > 0);
 
     const message = `Your work ${haveInteractiveName ? `for ${interactiveName}` : ""} has been shared with your class.`;
+    const style: React.CSSProperties = {zIndex: this.context.startingZIndex + 100};
 
     return (
-      <div className={css.shareModal}>
+      <div className={css.shareModal} style={style}>
         <div className={css.dialog}>
           <div className={css.titleBar}>
             <div className={css.titleBarContents}>
