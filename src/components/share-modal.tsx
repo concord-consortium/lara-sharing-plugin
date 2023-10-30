@@ -20,23 +20,25 @@ export class ShareModal extends React.Component<IShareModalProps, {}> {
     const message = `Your work ${haveInteractiveName ? `for ${interactiveName}` : ""} has been shared with your class.`;
 
     return (
-      <div className={css.shareModal}>
-        <div className={css.dialog}>
-          <div className={css.titleBar}>
-            <div className={css.titleBarContents}>
-              <SharedIcon className={`${css.left} ${css.icon}`} />
-              <div className={css.center}>Your Shared Work</div>
-              <CloseIcon className={`${css.right} ${css.icon}`} onClick={this.handleClose} />
+      <dialog className={css.shareModal} open={true}>
+        <form method="dialog">
+          <div className={css.dialog}>
+            <div className={css.titleBar}>
+              <div className={css.titleBarContents}>
+                <SharedIcon className={`${css.left} ${css.icon}`} />
+                <div className={css.center}>Your Shared Work</div>
+                <button onClick={this.handleClose}><CloseIcon className={`${css.right} ${css.icon}`} /></button>
+              </div>
+            </div>
+            <div className={css.contents}>
+              <p>{message}</p>
+              <p>Click the button again to unshare your work.</p>
+              <p>You may now view other students' shared work by clicking the View button.</p>
+              <p><input type="checkbox" ref={(el) => this.checkbox = el} /> Do not show this message again.</p>
             </div>
           </div>
-          <div className={css.contents}>
-            <p>{message}</p>
-            <p>Click the button again to unshare your work.</p>
-            <p>You may now view other students' shared work by clicking the View button.</p>
-            <p><input type="checkbox" ref={(el) => this.checkbox = el} /> Do not show this message again.</p>
-          </div>
-        </div>
-      </div>
+        </form>
+      </dialog>
     );
   }
 

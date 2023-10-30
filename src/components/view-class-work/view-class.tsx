@@ -33,27 +33,29 @@ export class ViewClass extends React.Component<IViewClassProps, IState> {
     const haveInteractiveName = (interactiveName !== null) && (interactiveName.length > 0);
 
     return (
-      <div className={css.viewClass}>
-        <div className={css.titleBar}>
-          <div className={css.titleBarContents}>
-            <ViewSharedIcon className={`${css.left} ${css.icon}`} />
-            <div className={css.center}>
-              View Shared Classwork{haveInteractiveName ? ": " : ""}
-              {interactiveName}
+      <dialog className={css.viewClass} open={true}>
+        <form method="dialog">
+          <div className={css.titleBar}>
+            <div className={css.titleBarContents}>
+              <ViewSharedIcon className={`${css.left} ${css.icon}`} />
+              <div className={css.center}>
+                View Shared Classwork{haveInteractiveName ? ": " : ""}
+                {interactiveName}
+              </div>
+              <button onClick={this.props.onClose}><CloseIcon className={`${css.right} ${css.icon}`} /></button>
             </div>
-            <CloseIcon className={`${css.right} ${css.icon}`}  onClick={this.props.onClose} />
           </div>
-        </div>
-        <LeftNav
-          sharedClassData={sharedClassData}
-          selectedStudentId={this.state.selectedStudentId}
-          onSelectStudent={this.handleSelectStudent}
-          store={store}
-        />
-        <div className={css.viewer}>
-          {this.renderViewer()}
-        </div>
-      </div>
+          <LeftNav
+            sharedClassData={sharedClassData}
+            selectedStudentId={this.state.selectedStudentId}
+            onSelectStudent={this.handleSelectStudent}
+            store={store}
+          />
+          <div className={css.viewer}>
+            {this.renderViewer()}
+          </div>
+        </form>
+      </dialog>
     );
   }
 
