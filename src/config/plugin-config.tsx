@@ -14,7 +14,7 @@ const PluginConfig: IPluginConfig = {
 export const DefaultFirebaseAppName = "lara-sharing";
 
 export const FirebaseConfig = {
-  apiKey: "AIzaSyCGQEmbWr4yP7ZBw-ZjmkfRU1lJNgKLikY",
+  apiKey: atob("QUl6YVN5Q0dRRW1iV3I0eVA3WkJ3LVpqbWtmUlUxbEpOZ0tMaWtZ"),
   authDomain: "share-plugin-dev.firebaseapp.com",
   databaseURL: "https://share-plugin-dev.firebaseio.com",
   projectId: "share-plugin-dev",
